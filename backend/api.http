@@ -1,0 +1,27 @@
+POST http://localhost:5000/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "testuser123",
+    "email": "test@example.com",
+    "password": "securePassword123",
+    "name": "Test User"
+}
+
+###
+
+POST http://localhost:5000/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "emailOrUsername": "test@example.com",
+    "password": "securePassword123"
+}
+
+###
+GET http://localhost:5000/get_user_and_profile
+Content-Type: application/json
+
+{
+    "token": "78e37782d1de14be7f69b9982f4c3075d9956de93ddc7ca34e60f271e3e264f4"
+}
