@@ -5,6 +5,7 @@ import {
   uploadProfilePicture,
   updateUserProfile,
   getUserAndProfile,
+  updateProfileData,
 } from "../controllers/user.controller.js";
 import multer from "multer";
 
@@ -30,5 +31,6 @@ router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/user_update").post(updateUserProfile);
 router.route("/get_user_and_profile").get(getUserAndProfile);
+router.route("/update_profile_data").post(updateProfileData);
 
 export default router;

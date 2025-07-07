@@ -238,3 +238,45 @@ export const getUserAndProfile = async (req, res) => {
     });
   }
 };
+
+export const updateProfileData = async (req, res) => {
+  try {
+    const { token, ...newProfileData } = req.body;
+
+    if (!token) {
+      return res.status(401).json({ message: "Authorization token required" });
+    }
+
+    // Find user by token
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find and update profile
+    const profile = await Profile.findOne({ userId: user._id });
+    if (!profile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    // Update profile data
+    Object.keys(newProfileData).forEach((key) => {
+      if (newProfileData[key] !== undefined) {
+        profile[key] = newProfileData[key];
+      }
+    });
+
+    await profile.save();
+
+    return res.json({
+      message: "Profile updated successfully",
+      profile,
+    });
+  } catch (error) {
+    console.error("Update profile data error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
