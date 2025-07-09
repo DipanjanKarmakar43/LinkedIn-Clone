@@ -1,7 +1,57 @@
 import User from "../models/user.model.js";
 import Profile from "../models/profile.model.js";
+
 import crypto from "crypto";
 import bcrypt from "bcrypt";
+import PDFDocument from "pdfkit";
+import fs from "fs";
+
+const convertUserDataToPDF = async (userData) => {
+  try {
+    const doc = new PDFDocument();
+    const outputPath = crypto.randomBytes(16).toString("hex") + ".pdf";
+    const stream = fs.createWriteStream("uploads/" + outputPath);
+
+    doc.pipe(stream);
+
+    // Add profile picture if exists
+    if (userData.userId.profilePicture) {
+      doc.image(`uploads/${userData.userId.profilePicture}`, {
+        align: "center",
+        width: 100,
+      });
+    }
+
+    // Add user information
+    doc.fontSize(14).text(`Name: ${userData.userId.name || "Not provided"}`);
+    doc
+      .fontSize(14)
+      .text(`Username: ${userData.userId.username || "Not provided"}`);
+    doc.fontSize(14).text(`Email: ${userData.userId.email || "Not provided"}`);
+    doc.fontSize(14).text(`Bio: ${userData.bio || "Not provided"}`);
+    doc
+      .fontSize(14)
+      .text(`Current Position: ${userData.currentPosition || "Not provided"}`);
+
+    // Add work experience if exists
+    if (userData.pastWork && userData.pastWork.length > 0) {
+      doc.fontSize(14).text("Work Experience:");
+      userData.pastWork.forEach((work) => {
+        doc
+          .fontSize(12)
+          .text(`- Company: ${work.companyName || "Not provided"}`);
+        doc.fontSize(12).text(`  Position: ${work.position || "Not provided"}`);
+        doc.fontSize(12).text(`  Years: ${work.years || "Not provided"}`);
+      });
+    }
+
+    doc.end();
+    return outputPath;
+  } catch (error) {
+    console.error("PDF generation error:", error);
+    throw new Error("Failed to generate PDF");
+  }
+};
 
 export const register = async (req, res) => {
   try {
@@ -276,6 +326,59 @@ export const updateProfileData = async (req, res) => {
     console.error("Update profile data error:", error);
     return res.status(500).json({
       message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const getAllUserProfiles = async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate(
+      "userId",
+      "name email username profilePicture"
+    );
+
+    if (!profiles || profiles.length === 0) {
+      return res.status(404).json({ message: "No profiles found" });
+    }
+
+    return res.json(profiles);
+  } catch (error) {
+    console.error("Get all user profiles error:", error);
+    return res.status(500).json({
+      message: "Error fetching profiles",
+      error: error.message,
+    });
+  }
+};
+
+export const downloadResume = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    const userProfile = await Profile.findOne({ userId }).populate(
+      "userId",
+      "name email username profilePicture"
+    );
+
+    if (!userProfile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    const outputPath = await convertUserDataToPDF(userProfile);
+
+    return res.json({
+      message: "Resume generated successfully",
+      path: outputPath,
+    });
+  } catch (error) {
+    console.error("Download resume error:", error);
+    return res.status(500).json({
+      message: "Error generating resume",
       error: error.message,
     });
   }

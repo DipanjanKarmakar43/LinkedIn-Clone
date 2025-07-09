@@ -14,6 +14,7 @@ app.use(express.json());
 
 app.use(postRoutes);
 app.use(userRoutes);
+app.use(express.static("uploads"));
 
 const startServer = async () => {
   try {
