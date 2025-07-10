@@ -31,15 +31,13 @@ const convertUserDataToPDF = async (userData) => {
     doc.fontSize(14).text(`Bio: ${userData.bio || "Not provided"}`);
     doc
       .fontSize(14)
-      .text(`Current Position: ${userData.currentPosition || "Not provided"}`);
+      .text(`Current Position: ${userData.currentPost || "Not provided"}`);
 
     // Add work experience if exists
     if (userData.pastWork && userData.pastWork.length > 0) {
       doc.fontSize(14).text("Work Experience:");
       userData.pastWork.forEach((work) => {
-        doc
-          .fontSize(12)
-          .text(`- Company: ${work.companyName || "Not provided"}`);
+        doc.fontSize(12).text(`- Company: ${work.company || "Not provided"}`);
         doc.fontSize(12).text(`  Position: ${work.position || "Not provided"}`);
         doc.fontSize(12).text(`  Years: ${work.years || "Not provided"}`);
       });
@@ -352,7 +350,7 @@ export const getAllUserProfiles = async (req, res) => {
   }
 };
 
-export const downloadResume = async (req, res) => {
+export const downloadProfile = async (req, res) => {
   try {
     const { userId } = req.query;
 
@@ -379,6 +377,141 @@ export const downloadResume = async (req, res) => {
     console.error("Download resume error:", error);
     return res.status(500).json({
       message: "Error generating resume",
+      error: error.message,
+    });
+  }
+};
+
+export const sendConnectionRequest = async (req, res) => {
+  const { token, connectionId } = req.body;
+
+  try {
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const connectionUser = await User.findOne({ _id: connectionId });
+    if (!connectionUser) {
+      return res.status(404).json({ message: "Connection user not found" });
+    }
+
+    const existingRequest = await ConnectionRequest.findOne({
+      userId: user._id,
+      connectionId: connectionUser._id,
+    });
+
+    if (existingRequest) {
+      return res
+        .status(400)
+        .json({ message: "Connection request already sent" });
+    }
+
+    const request = new ConnectionRequest({
+      userId: user._id,
+      connectionId: connectionUser._id,
+      status: "pending",
+    });
+    await request.save();
+    return res.status(201).json({
+      message: "Connection request sent successfully",
+      requestId: request._id,
+    });
+  } catch (error) {
+    console.error("Send connection request error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const getMyConnectionsRequest = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const requests = await ConnectionRequest.find({
+      userId: user._id,
+    }).populate("connectionId", "name email username profilePicture");
+
+    if (!requests || requests.length === 0) {
+      return res.status(404).json({ message: "No connection requests found" });
+    }
+
+    return res.json({
+      message: "Connection requests fetched successfully",
+      connections: requests,
+    });
+  } catch (error) {
+    console.error("Get my connections request error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const whatAreMyConnections = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const connections = await ConnectionRequest.find({
+      $or: [{ userId: user._id }, { connectionId: user._id }],
+      status: "accepted",
+    })
+      .populate("userId", "name email username profilePicture")
+      .populate("connectionId", "name email username profilePicture");
+    if (!connections || connections.length === 0) {
+      return res.status(404).json({ message: "No connections found" });
+    }
+    return res.json({
+      message: "Connections fetched successfully",
+      connections,
+    });
+  } catch (error) {
+    console.error("What are my connections error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const acceptConnectionRequest = async (req, res) => {
+  const { token, requestId } = req.body;
+
+  try {
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const connection = await ConnectionRequest.findOne({
+      _id: requestId,
+      connectionId: user._id,
+    });
+    if (!connection) {
+      return res.status(404).json({ message: "Connection request not found" });
+    }
+    connection.status = "accepted"; // ✅ Accept the request
+    await connection.save();
+
+    return res.json({
+      message: "Connection request accepted successfully",
+      connection,
+    });
+  } catch (error) {
+    console.error("Accept connection request error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
       error: error.message,
     });
   }

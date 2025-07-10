@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import {
   login,
   register,
@@ -7,9 +8,12 @@ import {
   getUserAndProfile,
   updateProfileData,
   getAllUserProfiles,
-  downloadResume,
+  downloadProfile,
+  sendConnectionRequest,
+  acceptConnectionRequest,
+  whatAreMyConnections,
+  getMyConnectionsRequest, // ←✅ Add this line
 } from "../controllers/user.controller.js";
-import multer from "multer";
 
 const router = Router();
 
@@ -35,6 +39,10 @@ router.route("/user_update").post(updateUserProfile);
 router.route("/get_user_and_profile").get(getUserAndProfile);
 router.route("/update_profile_data").post(updateProfileData);
 router.route("/user/get_all_users").get(getAllUserProfiles);
-router.route("/user/download_resume").get(downloadResume);
+router.route("/user/download_resume").get(downloadProfile);
+router.route("/user/send_connection_request").post(sendConnectionRequest);
+router.route("/user/getConnectionRequests").get(getMyConnectionsRequest);
+router.route("/user/user_connection_request").get(whatAreMyConnections);
+router.route("/user/accept_connection_request").post(acceptConnectionRequest);
 
 export default router;
