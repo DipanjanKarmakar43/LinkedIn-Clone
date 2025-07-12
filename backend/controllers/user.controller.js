@@ -501,7 +501,7 @@ export const acceptConnectionRequest = async (req, res) => {
     if (!connection) {
       return res.status(404).json({ message: "Connection request not found" });
     }
-    connection.status = "accepted"; // ✅ Accept the request
+    connection.status = "accepted";
     await connection.save();
 
     return res.json({

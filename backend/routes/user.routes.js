@@ -1,5 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
+import fs from "fs";
+import crypto from "crypto";
 import {
   login,
   register,
@@ -12,37 +14,42 @@ import {
   sendConnectionRequest,
   acceptConnectionRequest,
   whatAreMyConnections,
-  getMyConnectionsRequest, // ←✅ Add this line
+  getMyConnectionsRequest,
 } from "../controllers/user.controller.js";
 
 const router = Router();
 
+const uploadDir = "uploads";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+    const uniqueName =
+      crypto.randomBytes(8).toString("hex") + "-" + file.originalname;
+    cb(null, uniqueName);
   },
 });
 
 const upload = multer({ storage });
 
-router.route("/update_profile_picture").post(
-  upload.single("profile_picture"), // Match the field name from frontend
+router.post(
+  "/update_profile_picture",
+  upload.single("profile_picture"),
   uploadProfilePicture
 );
-
-router.route("/register").post(register);
-router.route("/login").post(login);
-router.route("/user_update").post(updateUserProfile);
-router.route("/get_user_and_profile").get(getUserAndProfile);
-router.route("/update_profile_data").post(updateProfileData);
-router.route("/user/get_all_users").get(getAllUserProfiles);
-router.route("/user/download_resume").get(downloadProfile);
-router.route("/user/send_connection_request").post(sendConnectionRequest);
-router.route("/user/getConnectionRequests").get(getMyConnectionsRequest);
-router.route("/user/user_connection_request").get(whatAreMyConnections);
-router.route("/user/accept_connection_request").post(acceptConnectionRequest);
+router.post("/register", register);
+router.post("/login", login);
+router.post("/user_update", updateUserProfile);
+router.get("/get_user_and_profile", getUserAndProfile);
+router.post("/update_profile_data", updateProfileData);
+router.get("/users", getAllUserProfiles);
+router.get("/users/download_resume", downloadProfile);
+router.post("/connections/request", sendConnectionRequest);
+router.get("/connections/requests", getMyConnectionsRequest);
+router.get("/connections", whatAreMyConnections);
+router.post("/connections/accept", acceptConnectionRequest);
 
 export default router;
