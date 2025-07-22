@@ -1,0 +1,212 @@
+.registerContainer,
+.loginContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: var(--background);
+  color: var(--text);
+}
+
+.authTitle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2vh;
+  position: relative;
+  top: 0vh;
+  padding: 0vh 30vh;
+}
+
+.authTitle img {
+  height: 10vh;
+  width: fit-content;
+}
+
+.registerCard,
+.loginCard {
+  background: var(--background);
+  border-radius: 12px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
+    rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+  padding: 3vh;
+  max-width: 40vh;
+  width: 100%;
+}
+
+.registerTitle,
+.loginTitle {
+  font-size: 3.5vh;
+  font-weight: 400;
+  margin-bottom: 2vh;
+  color: var(--text);
+}
+
+.input {
+  width: 100%;
+  padding: 1.5vh;
+  margin-bottom: 2vh;
+  border: 0.1vh solid var(--text);
+  border-radius: 0.5vh;
+  font-size: 1.5vh;
+  background-color: var(--background);
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  outline: none;
+  opacity: 1;
+}
+
+.passwordWrapper {
+  position: relative;
+}
+
+.showToggle {
+  position: absolute;
+  right: 2.5vh;
+  top: 2.7vh;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 1.5vh;
+  font-weight: 600;
+}
+
+.showToggle:hover {
+  font-weight: 700;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  font-size: 1.5vh;
+  margin-bottom: 3vh;
+  gap: 1vh;
+}
+.checkbox input {
+  width: 1.5vh;
+  height: 1.5vh;
+  cursor: pointer;
+}
+
+.terms {
+  font-size: 1.5vh;
+  color: var(--text);
+  margin-bottom: 3vh;
+  opacity: 0.8;
+  text-align: center;
+}
+
+.terms a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.socialButton {
+  width: 100%;
+  padding: 1.5vh;
+  background-color: var(--background);
+  color: var(--text);
+  border: 0.1vh solid var(--text);
+  border-radius: 5vh;
+  font-size: 1.5vh;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1vh;
+  opacity: 0.8;
+}
+
+.socialButton:hover {
+  opacity: 1;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 1.5vh;
+  color: var(--text);
+  border: 0.1vh solid var(--text);
+  border-radius: 5vh;
+  font-size: 1.5vh;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--primary);
+  color: var(--background);
+  border: none;
+}
+.submitButton:hover {
+  background-color: var(--accent);
+}
+
+.socialButton img {
+  height: 2vh;
+}
+
+.errorMessage {
+  color: red;
+  font-size: 1.5vh;
+  text-align: center;
+  margin-top: 3vh;
+  margin-bottom: 1vh;
+}
+
+.divider {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin: 2vh 0;
+  font-size: 0.8vh;
+  color: var(--text);
+  opacity: 0.4;
+  gap: 1vh;
+}
+.divider hr {
+  flex: 1;
+  border: none;
+  border-top: 0.1vh solid var(--text);
+}
+
+.formFooter {
+  font-size: 1.5vh;
+  text-align: center;
+  margin-top: 2vh;
+}
+.formFooter a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.formFooter a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.loginOptions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2vh;
+  font-size: 1vh;
+  margin-bottom: 1.5vh;
+}
+
+.loginOptions a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.5vh;
+}
+
+.loginOptions a:hover {
+  text-decoration: underline;
+}
