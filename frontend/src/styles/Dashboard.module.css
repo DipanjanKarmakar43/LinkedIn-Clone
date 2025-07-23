@@ -1,0 +1,7 @@
+.dashboardContainer {
+  min-height: 92vh;
+  width: 100%;
+  background-color: var(--background);
+  color: var(--text);
+  padding-top: 8vh;
+}

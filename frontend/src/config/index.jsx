@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
 
 export const clientServer = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });

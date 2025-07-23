@@ -55,12 +55,10 @@ export const register = async (req, res) => {
   try {
     const { name, email, password, username } = req.body;
 
-    // Basic validation
     if (!name || !email || !password || !username) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { username }],
     });
@@ -73,7 +71,7 @@ export const register = async (req, res) => {
       return res.status(400).json({ message });
     }
 
-    // Create user
+    // Create new user
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       name,
@@ -82,11 +80,18 @@ export const register = async (req, res) => {
       username,
     });
 
-    // Create profile
+    // Generate token
+    const token = crypto.randomBytes(32).toString("hex");
+    newUser.token = token;
+    await newUser.save();
+
+    // Create user profile
     await Profile.create({ userId: newUser._id });
 
+    // Return token + user
     return res.status(201).json({
       message: "Registration successful",
+      token,
       user: {
         id: newUser._id,
         name: newUser.name,
@@ -256,7 +261,7 @@ export const updateUserProfile = async (req, res) => {
 
 export const getUserAndProfile = async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token } = req.query;
 
     if (!token) {
       return res.status(400).json({ message: "Token is required" });

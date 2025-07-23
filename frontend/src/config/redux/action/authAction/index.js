@@ -9,6 +9,7 @@ export const registerUser = createAsyncThunk(
         name: user.name,
         email: user.email,
         password: user.password,
+        username: user.username,
       });
       return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
@@ -22,11 +23,12 @@ export const loginUser = createAsyncThunk(
   async (user, thunkAPI) => {
     try {
       const response = await clientServer.post("/login", {
-        email: user.email,
+        emailOrUsername: user.emailOrUsername,
         password: user.password,
       });
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
       } else {
         return thunkAPI.rejectWithValue("No token received");
       }
@@ -44,6 +46,22 @@ export const logoutUser = createAsyncThunk(
     try {
       localStorage.removeItem("token");
       return thunkAPI.fulfillWithValue("User logged out successfully");
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data || error.message);
+    }
+  }
+);
+
+export const getAboutUser = createAsyncThunk(
+  "user/getAboutUser",
+  async (user, thunkAPI) => {
+    try {
+      const response = await clientServer.get("/get_user_and_profile", {
+        params: {
+          token: user.token,
+        },
+      });
+      return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data || error.message);
     }

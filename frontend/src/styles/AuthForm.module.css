@@ -1,28 +1,13 @@
 .registerContainer,
 .loginContainer {
-  min-height: 100vh;
+  min-height: 92vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   background-color: var(--background);
   color: var(--text);
-}
-
-.authTitle {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2vh;
-  position: relative;
-  top: 0vh;
-  padding: 0vh 30vh;
-}
-
-.authTitle img {
-  height: 10vh;
-  width: fit-content;
+  padding-top: 8vh;
 }
 
 .registerCard,
