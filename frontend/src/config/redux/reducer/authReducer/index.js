@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   registerUser,
   loginUser,
-  logoutUser,
   getAboutUser,
+  logoutUser,
 } from "@/config/redux/action/authAction";
 
 const initialState = {
@@ -13,7 +13,7 @@ const initialState = {
   isSuccess: false,
   loggedIn: false,
   message: "",
-  profileFetch: false,
+  profileFetched: false,
   connections: [],
   connectionRequests: [],
 };
@@ -66,7 +66,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.profileFetched = true;
-        state.user = action.payload.profile;
+        state.user = action.payload;
       });
   },
 });

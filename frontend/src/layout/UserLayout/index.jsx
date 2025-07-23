@@ -1,12 +1,12 @@
+import React from "react";
 import NavbarComponent from "@/components/Navbar";
 import FooterComponent from "@/components/Footer";
-import React from "react";
 
 export default function UserLayout({ children }) {
   return (
     <div>
       <NavbarComponent />
-      {children}
+      <main>{children}</main>
       <FooterComponent />
     </div>
   );

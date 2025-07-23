@@ -24,14 +24,18 @@
   font-weight: 900;
   font-family: "exo", sans-serif;
   color: transparent;
-  background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary)) -100% / 200%;
+  background: linear-gradient(
+      90deg,
+      var(--primary),
+      var(--accent),
+      var(--primary)
+    ) -100% / 200%;
   background-clip: text;
   -webkit-background-clip: text;
   animation: shimmer 2s linear infinite;
   z-index: 1;
   text-align: center;
 }
-
 
 .loader::after {
   content: "";
@@ -55,6 +59,10 @@
 
 .loadingMessage {
   text-align: center;
+  margin-bottom: 3vh;
+}
+
+.gradientText {
   font-size: 3.5vh;
   font-weight: 900;
   font-family: "exo", sans-serif;
@@ -68,7 +76,6 @@
   background-clip: text;
   -webkit-background-clip: text;
   animation: shimmer 2s linear infinite;
-  margin-bottom: 3vh;
 }
 
 @keyframes shimmer {

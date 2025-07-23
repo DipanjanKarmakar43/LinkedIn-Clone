@@ -33,7 +33,7 @@ export const loginUser = createAsyncThunk(
         return thunkAPI.rejectWithValue("No token received");
       }
 
-      return thunkAPI.fulfillWithValue(response.data.token);
+      return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data || error.message);
     }
@@ -56,6 +56,9 @@ export const getAboutUser = createAsyncThunk(
   "user/getAboutUser",
   async (user, thunkAPI) => {
     try {
+      if (!user.token) {
+        return thunkAPI.rejectWithValue("No token provided");
+      }
       const response = await clientServer.get("/get_user_and_profile", {
         params: {
           token: user.token,

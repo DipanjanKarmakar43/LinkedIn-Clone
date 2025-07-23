@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "../../styles/LoadingScreen.module.css";
+import { useSelector } from "react-redux";
 
 export default function LoadingScreen() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  const user = useSelector((state) => state.auth.user?.userId); // Adjust if needed
+  console.log("LoadingScreen user:", user); // For debugging
 
   return (
     <div className={styles.overlay}>
       <div className={styles.loadingMessage}>
-        {user && (
-          <div>
-            <h1>Welcome, {user.name}!</h1>
-          </div>
-        )}
+        <h1 className={styles.gradientText}>
+          Welcome, {user?.name || "loading..."}
+        </h1>
       </div>
       <div className={styles.loader}></div>
     </div>
