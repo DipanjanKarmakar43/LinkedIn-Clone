@@ -33,7 +33,7 @@ export default function Register() {
       // Wait exactly 5 seconds before redirect
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1900);
+      }, 1800);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
       setLoading(false);

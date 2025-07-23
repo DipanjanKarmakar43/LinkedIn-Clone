@@ -41,7 +41,7 @@ export default function Login() {
       // Show loader for exactly 5 seconds
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1900); // 5 seconds
+      }, 1800); // 1.8 seconds
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
       setLoading(false);
