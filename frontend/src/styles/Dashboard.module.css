@@ -3,17 +3,182 @@
   width: 100%;
   background-color: var(--background);
   color: var(--text);
-  padding-top: 8vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 10vh 10vw 2vh 10vw;
+  gap: 5vh;
 }
 
-
-.dashboardContainer h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: #333;
+.profileContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 3vh;
 }
 
-.dashboardContainer p {
-  font-size: 1.2rem;
-  color: #666;
+.profileCard {
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 1vh;
+
+  color: var(--background);
+}
+.profileCardBanner {
+  width: 100%;
+  height: 10vh;
+  background-color: var(--accent);
+  border-top-left-radius: 1vh;
+  border-top-right-radius: 1vh;
+}
+
+.profileCardImage {
+  width: 10vh;
+  height: 10vh;
+  padding: 0.1vh;
+  margin-left: 2vh;
+  position: relative;
+  top: 4.5vh;
+  border-radius: 50%;
+  background-color: antiquewhite;
+  object-fit: cover;
+  overflow: hidden;
+  border: 0.1vh solid rgba(0, 0, 0, 0.2);
+}
+
+.profileCardImage img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileCardContent {
+  width: 100%;
+  padding: 6vh 2vh 2vh 2vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  border: 0.1vh solid rgba(0, 0, 0, 0.2);
+  border-bottom-left-radius: 1vh;
+  border-bottom-right-radius: 1vh;
+}
+
+.connectionCard {
+  width: 100%;
+  padding: 2vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1vh;
+  color: var(--text);
+  border: 0.1vh solid rgba(0, 0, 0, 0.2);
+}
+
+.feedContainer {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow-y: auto;
+  gap: 2vh;
+  max-height: 80vh;
+}
+
+.feedContainer::-webkit-scrollbar {
+  width: 0.1vh;
+}
+
+.feedContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.feedContainer::-webkit-scrollbar-thumb {
+  background-color: var(--background);
+}
+
+.feedAddPost {
+  padding: 2vh;
+  border: 0.1vh solid rgba(0, 0, 0, 0.2);
+  border-radius: 1vh;
+  background-color: var(--background);
+}
+
+.feedAddPostTop {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2vh;
+}
+.feedAddPostImg {
+  width: 5vh;
+  height: 5vh;
+  border-radius: 50%;
+  background-color: antiquewhite;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.feedAddPostImg img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.feedAddPostLink {
+  width: 100%;
+  border-radius: 5vh;
+  padding: 1vh 1vh 1vh 2vh;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.5vh;
+  border: 0.1vh solid rgba(0, 0, 0, 0.4);
+  opacity: 0.8;
+}
+
+.feedAddPostBottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 2vh;
+}
+
+.feedAddPostType {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1vh;
+  color: var(--text);
+  font-size: 1.6vh;
+}
+
+.feedAddPostType a {
+  color: var(--text);
+  text-decoration: none;
+}
+.feedPosts {
+  min-height: 62vh;
+  padding: 2vh;
+  border: 0.1vh solid rgba(0, 0, 0, 0.2);
+  border-radius: 1vh;
+  background-color: var(--background);
+}
+.extraContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1vh;
+  padding: 2vh;
+  border: 0.1vh solid rgba(0, 0, 0, 0.2);
 }
