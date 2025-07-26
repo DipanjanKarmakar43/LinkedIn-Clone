@@ -14,7 +14,7 @@
 
 .loader {
   --load-time: 2s;
-  outline: 0.5vh solid var(--accent);
+  outline: 0.5vh solid #017eba;
   outline-offset: 0.5vh;
   position: relative;
   overflow: hidden;
@@ -43,7 +43,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background-color: var(--accent);
+  background-color: #017eba;
   z-index: 2;
   animation: loading var(--load-time) ease-in-out infinite;
 }
@@ -58,28 +58,22 @@
 }
 
 .loadingMessage {
-  text-align: center;
+  
   margin-bottom: 3vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: #017eba;
 }
 
 .gradientText {
-  font-size: 3.5vh;
+  font-size: 9vh;
   font-weight: 900;
-  font-family: "exo", sans-serif;
-  color: transparent;
-  background: linear-gradient(
-      90deg,
-      var(--accent),
-      var(--secondary),
-      var(--accent)
-    ) -100% / 200%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: shimmer 2s linear infinite;
 }
 
-@keyframes shimmer {
-  to {
-    background-position: 100%;
-  }
+.gradientText img {
+  width: 3.5vh;
+  height: 3.5vh;
+  margin-left: 1vh;
 }

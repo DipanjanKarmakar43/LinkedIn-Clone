@@ -4,7 +4,11 @@ import React, { useEffect } from "react";
 import styles from "../../styles/Dashboard.module.css";
 import { useDispatch } from "react-redux";
 import { getAllPosts } from "@/config/redux/action/postAction";
-import { getAboutUser } from "@/config/redux/action/authAction";
+import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
+import {
+  setTokenIsThere,
+  setTokenIsNotThere,
+} from "@/config/redux/reducer/authReducer";
 import { useSelector } from "react-redux";
 
 export default function Dashboard() {
@@ -15,11 +19,18 @@ export default function Dashboard() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
+
       if (!token) {
+        dispatch(setTokenIsNotThere());
         router.push("/login");
       } else {
+        dispatch(setTokenIsThere());
         dispatch(getAllPosts());
         dispatch(getAboutUser({ token }));
+      }
+
+      if (!authState.all_profiles_fetched) {
+        dispatch(getAllUsers());
       }
     }
   }, [dispatch, router]);
@@ -44,8 +55,10 @@ export default function Dashboard() {
               </div>
             </div>
             <div className={styles.connectionCard}>
-              <h3>Connections</h3>
-              <p>{authState.user?.userId?.connections} connections</p>
+              <a onClick={() => router.push("/myConnections")}>
+                <h3>Connections</h3>
+                <p>{authState.user?.userId?.connections} connections</p>
+              </a>
             </div>
           </div>
         )}
@@ -58,7 +71,9 @@ export default function Dashboard() {
                   alt="Profile"
                 />
               </div>
-              <a className={styles.feedAddPostLink} href="#">Start a post</a>
+              <a className={styles.feedAddPostLink} href="#">
+                Start a post
+              </a>
             </div>
             <div className={styles.feedAddPostBottom}>
               <div className={styles.feedAddPostType}>
@@ -89,10 +104,22 @@ export default function Dashboard() {
           </div>
         </div>
         <div className={styles.extraContainer}>
-          <h2>Extra Content</h2>
-          <p>
-            This section can be used for additional information or features.
-          </p>
+          <h2>Top Profiles</h2>
+          <div className={styles.topProfilesList}>
+            {authState.all_profiles_fetched &&
+              Array.isArray(authState.all_users) &&
+              authState.all_users.map((profile) => (
+                <div key={profile._id} className={styles.profileCard}>
+                  {/* <img
+                    src={profile.userId.profilePicture}
+                    alt={profile.userId.name}
+                    className={styles.profileImage}
+                  /> */}
+                  <h3>{profile.userId.name}</h3>
+                  {/* <p>{profile.currentPost || profile.bio}</p> */}
+                </div>
+              ))}
+          </div>
         </div>
       </div>
     </UserLayout>

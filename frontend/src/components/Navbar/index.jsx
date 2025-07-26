@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Navbar.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "@/config/redux/action/authAction";
+import { setTokenIsThere } from "@/config/redux/reducer/authReducer"; // ✅ import this to update token state if needed
 
 export default function NavbarComponent() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [theme, setTheme] = useState("light");
 
+  const loggedIn = useSelector((state) => state.auth.loggedIn);
+  const isAuthPage = ["/login", "/register"].includes(router.pathname);
+
   useEffect(() => {
+    // Theme setup
     const storedTheme = localStorage.getItem("theme") || "light";
     setTheme(storedTheme);
     document.documentElement.setAttribute("data-theme", storedTheme);
-  }, []);
+
+    // ✅ Restore login state from localStorage token
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(setTokenIsThere());
+    }
+  }, [dispatch]);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -19,7 +33,10 @@ export default function NavbarComponent() {
     document.documentElement.setAttribute("data-theme", newTheme);
   };
 
-  const isAuthPage = ["/login", "/register"].includes(router.pathname);
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    router.push("/login");
+  };
 
   return (
     <header className={styles.header}>
@@ -71,18 +88,29 @@ export default function NavbarComponent() {
 
         {!isAuthPage && (
           <>
-            <a
-              onClick={() => router.push("/login")}
-              className={styles["join-now"]}
-            >
-              Join now
-            </a>
-            <button
-              onClick={() => router.push("/register")}
-              className={styles["sign-in-button"]}
-            >
-              Sign in
-            </button>
+            {!loggedIn ? (
+              <>
+                <a
+                  onClick={() => router.push("/login")}
+                  className={styles["join-now"]}
+                >
+                  Join now
+                </a>
+                <button
+                  onClick={() => router.push("/register")}
+                  className={styles["sign-in-button"]}
+                >
+                  Sign in
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className={styles["sign-in-button"]}
+              >
+                Logout
+              </button>
+            )}
           </>
         )}
       </div>

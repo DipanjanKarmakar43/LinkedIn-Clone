@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding: 10vh 10vw 2vh 10vw;
+  padding: 10vh 10vw 0vh 10vw;
   gap: 5vh;
 }
 
@@ -26,7 +26,6 @@
   flex-direction: column;
   align-items: center;
   border-radius: 1vh;
-
   color: var(--background);
 }
 .profileCardBanner {
@@ -81,6 +80,16 @@
   border: 0.1vh solid rgba(0, 0, 0, 0.2);
 }
 
+.connectionCard a {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text);
+  text-decoration: none;
+}
+
 .feedContainer {
   flex: 2;
   display: flex;
@@ -89,7 +98,7 @@
   align-items: stretch;
   overflow-y: auto;
   gap: 2vh;
-  max-height: 80vh;
+  min-height: 90vh;
 }
 
 .feedContainer::-webkit-scrollbar {
@@ -121,7 +130,6 @@
   width: 5vh;
   height: 5vh;
   border-radius: 50%;
-  background-color: antiquewhite;
   object-fit: cover;
   overflow: hidden;
 }
@@ -166,13 +174,15 @@
   text-decoration: none;
 }
 .feedPosts {
-  min-height: 62vh;
+  min-height: 72vh;
   padding: 2vh;
   border: 0.1vh solid rgba(0, 0, 0, 0.2);
-  border-radius: 1vh;
+  border-top-left-radius: 1vh;
+  border-top-right-radius: 1vh;
   background-color: var(--background);
 }
 .extraContainer {
+  height: fit-content;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -181,4 +191,14 @@
   border-radius: 1vh;
   padding: 2vh;
   border: 0.1vh solid rgba(0, 0, 0, 0.2);
+}
+
+.extraContainer h2 {
+  font-size: 2vh;
+  color: var(--text);
+}
+
+.extraContainer h3 {
+  font-size: 1.5vh;
+  color: var(--text);
 }

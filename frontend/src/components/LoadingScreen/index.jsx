@@ -10,8 +10,9 @@ export default function LoadingScreen() {
     <div className={styles.overlay}>
       <div className={styles.loadingMessage}>
         <h1 className={styles.gradientText}>
-          Welcome, {user?.name || "loading..."}
+          Linked
         </h1>
+        <img src="/LinkedIn_icon.svg" alt="LinkedIn" />
       </div>
       <div className={styles.loader}></div>
     </div>
