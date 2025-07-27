@@ -14,12 +14,10 @@ export default function NavbarComponent() {
   const isAuthPage = ["/login", "/register"].includes(router.pathname);
 
   useEffect(() => {
-    // Theme setup
     const storedTheme = localStorage.getItem("theme") || "light";
     setTheme(storedTheme);
     document.documentElement.setAttribute("data-theme", storedTheme);
 
-    // ✅ Restore login state from localStorage token
     const token = localStorage.getItem("token");
     if (token) {
       dispatch(setTokenIsThere());
@@ -35,7 +33,8 @@ export default function NavbarComponent() {
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
-    router.push("/login");
+    localStorage.removeItem("token");
+    router.replace("/login");
   };
 
   return (
@@ -52,7 +51,7 @@ export default function NavbarComponent() {
         <nav className={styles["nav-links-tab"]}>
           <div className={styles.navbtn}>
             <span className="material-symbols-outlined">home</span>
-            <a href="#">Home</a>
+            <a href="/dashboard">Home</a>
           </div>
           <div className={styles.navbtn}>
             <span className="material-symbols-outlined">
@@ -62,7 +61,7 @@ export default function NavbarComponent() {
           </div>
           <div className={styles.navbtn}>
             <span className="material-symbols-outlined">groups</span>
-            <a href="#">My Network</a>
+            <a href="/myConnections">My Network</a>
           </div>
           <div className={styles.navbtn}>
             <span className="material-symbols-outlined">work</span>

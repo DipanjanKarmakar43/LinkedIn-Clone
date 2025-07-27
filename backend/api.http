@@ -2,10 +2,10 @@ POST http://localhost:5000/register HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "",
-    "email": "",
-    "password": "",
-    "name": ""
+    "username": "panchami",
+    "email": "panchami@gmail.com",
+    "password": "panchami",
+    "name": "panchami_apnacollege"
 }
 
 ###

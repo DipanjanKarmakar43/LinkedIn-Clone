@@ -78,6 +78,7 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       username,
+      profilePicture: "default.jpg",
     });
 
     // Generate token

@@ -6,7 +6,6 @@ import {
   getAllUsers,
   logoutUser,
 } from "@/config/redux/action/authAction";
-import { all } from "axios";
 
 const initialState = {
   user: [],
@@ -19,8 +18,8 @@ const initialState = {
   profileFetched: false,
   connections: [],
   connectionRequests: [],
-  all_profiles_fetched: false,
   all_users: [],
+  all_profiles_fetched: false,
 };
 
 const authSlice = createSlice({
@@ -93,7 +92,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.all_profiles_fetched = true;
-        state.all_users = action.payload.profiles;
+        state.all_users = action.payload;
       });
   },
 });

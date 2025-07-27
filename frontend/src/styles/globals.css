@@ -11,7 +11,7 @@
   --primary: #0f78e0;
   --secondary: #dddbff;
   --accent: #0a66c2;
-  --border: rgba(0, 0, 0, 0.2); /* light border */
+  --border: rgba(0, 0, 0, 0.2);
 }
 
 :root[data-theme="dark"] {
@@ -20,5 +20,5 @@
   --primary: #117fec;
   --secondary: #020024;
   --accent: #0a66c2;
-  --border: rgba(255, 255, 255, 0.2); /* dark border */
+  --border: rgba(255, 255, 255, 0.2);
 }

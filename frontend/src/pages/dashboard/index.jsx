@@ -1,127 +1,132 @@
-import UserLayout from "@/layout/UserLayout";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
-import styles from "../../styles/Dashboard.module.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAllPosts } from "@/config/redux/action/postAction";
 import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
-import {
-  setTokenIsThere,
-  setTokenIsNotThere,
-} from "@/config/redux/reducer/authReducer";
-import { useSelector } from "react-redux";
+import { baseURL } from "@/config";
+import styles from "../../styles/Dashboard.module.css";
+import UserLayout from "@/layout/UserLayout";
+import DashboardLayout from "@/layout/DashboardLayout";
+import PostModal from "@/components/PostModal";
 
 export default function Dashboard() {
   const router = useRouter();
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [file, setFile] = useState(null);
+  const [fileType, setFileType] = useState(null);
 
-      if (!token) {
-        dispatch(setTokenIsNotThere());
-        router.push("/login");
-      } else {
-        dispatch(setTokenIsThere());
-        dispatch(getAllPosts());
-        dispatch(getAboutUser({ token }));
-      }
+  useEffect(() => {
+    if (authState.isTokenThere) {
+      dispatch(getAllPosts());
+      dispatch(getAboutUser({ token: localStorage.getItem("token") }));
 
       if (!authState.all_profiles_fetched) {
         dispatch(getAllUsers());
       }
     }
-  }, [dispatch, router]);
+  }, [dispatch, authState.isTokenThere, authState.all_profiles_fetched]);
+
+  const profilePic = authState?.user?.userId?.profilePicture;
+  const imageSrc = profilePic ? `${baseURL}/${profilePic}` : "/default.jpg";
+
+  const handleFileSelect = (event, type) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFileType(type);
+      setShowPostModal(true);
+    }
+  };
 
   return (
     <UserLayout>
-      <div className={styles.dashboardContainer}>
-        {authState.profileFetched && (
-          <div className={styles.profileContainer}>
-            <div className={styles.profileCard}>
-              <div className={styles.profileCardBanner}>
-                <div className={styles.profileCardImage}>
-                  <img
-                    src={authState.user?.userId?.profilePicture}
-                    alt="Profile"
-                  />
-                </div>
-              </div>
-              <div className={styles.profileCardContent}>
-                <h2>{authState.user?.userId?.name}</h2>
-                <p>{authState.user?.userId?.email}</p>
-              </div>
-            </div>
-            <div className={styles.connectionCard}>
-              <a onClick={() => router.push("/myConnections")}>
-                <h3>Connections</h3>
-                <p>{authState.user?.userId?.connections} connections</p>
-              </a>
-            </div>
-          </div>
-        )}
+      <DashboardLayout>
         <div className={styles.feedContainer}>
           <div className={styles.feedAddPost}>
             <div className={styles.feedAddPostTop}>
               <div className={styles.feedAddPostImg}>
-                <img
-                  src={authState.user?.userId?.profilePicture}
-                  alt="Profile"
-                />
+                <img src={imageSrc} alt="Profile" />
               </div>
-              <a className={styles.feedAddPostLink} href="#">
+              <a
+                className={styles.feedAddPostLink}
+                onClick={() => setShowPostModal(true)}
+              >
                 Start a post
               </a>
             </div>
+
             <div className={styles.feedAddPostBottom}>
-              <div className={styles.feedAddPostType}>
-                <span className="material-symbols-outlined">smart_display</span>
-                <a href="">Video</a>
-              </div>
-              <div className={styles.feedAddPostType}>
-                <span className="material-symbols-outlined">panorama</span>
-                <a href="">Photo</a>
-              </div>
-              <div className={styles.feedAddPostType}>
-                <span className="material-symbols-outlined">newsmode</span>
-                <a href="">Write Article</a>
-              </div>
+              <label className={styles.feedAddPostType}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ color: "#5f9b41" }}
+                >
+                  smart_display
+                </span>
+                <span>Video</span>
+                <input
+                  type="file"
+                  accept="video/*"
+                  hidden
+                  onChange={(e) => handleFileSelect(e, "video")}
+                />
+              </label>
+
+              <label className={styles.feedAddPostType}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ color: "#378fe9" }}
+                >
+                  panorama
+                </span>
+                <span>Photo</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => handleFileSelect(e, "photo")}
+                />
+              </label>
+
+              <label className={styles.feedAddPostType}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ color: "#e06847" }}
+                >
+                  newsmode
+                </span>
+                <span>Write Article</span>
+                <input
+                  type="file"
+                  hidden
+                  onChange={(e) => handleFileSelect(e, "article")}
+                />
+              </label>
             </div>
           </div>
+
           <hr />
           <div className={styles.feedPosts}>
             <h2>Recent Posts</h2>
-            {/* Map through posts and display them here */}
-            {/* Example post structure */}
-            {/* {authState.posts.map((post) => (
-              <div key={post.id} className={styles.postCard}>
-                <h3>{post.title}</h3>
-                <p>{post.content}</p>
-              </div>
-            ))} */}
           </div>
         </div>
-        <div className={styles.extraContainer}>
-          <h2>Top Profiles</h2>
-          <div className={styles.topProfilesList}>
-            {authState.all_profiles_fetched &&
-              Array.isArray(authState.all_users) &&
-              authState.all_users.map((profile) => (
-                <div key={profile._id} className={styles.profileCard}>
-                  {/* <img
-                    src={profile.userId.profilePicture}
-                    alt={profile.userId.name}
-                    className={styles.profileImage}
-                  /> */}
-                  <h3>{profile.userId.name}</h3>
-                  {/* <p>{profile.currentPost || profile.bio}</p> */}
-                </div>
-              ))}
-          </div>
-        </div>
-      </div>
+
+        {showPostModal && (
+          <PostModal
+            onClose={() => {
+              setShowPostModal(false);
+              setFile(null);
+              setFileType(null);
+            }}
+            profileImage={imageSrc}
+            file={file}
+            fileType={fileType}
+          />
+        )}
+      </DashboardLayout>
     </UserLayout>
   );
 }
