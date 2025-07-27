@@ -13,8 +13,7 @@ import {
   edit_comment,
   reply_to_comment,
   get_replies_by_comment,
-  increment_likes,
-  decrement_likes,
+  toggleLike,
 } from "../controllers/posts.controller.js";
 
 const router = Router();
@@ -43,8 +42,7 @@ router.route("/").get(activeCheck);
 router.route("/post").post(upload.single("media"), createPost);
 router.route("/posts").get(getAllPosts);
 router.route("/delete_post").delete(deletePost);
-router.route("/like_post").post(increment_likes);
-router.route("/dislike_post").delete(decrement_likes);
+router.route("/toggle_like").patch(toggleLike);
 router.route("/comment").post(commentOnPost);
 router.route("/get_comments").get(get_comments_by_post);
 router.route("/delete_comment").delete(delete_comment_of_user);

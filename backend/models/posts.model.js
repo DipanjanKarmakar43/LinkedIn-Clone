@@ -11,8 +11,9 @@ const postSchema = new mongoose.Schema({
     required: true,
   },
   likes: {
-    type: Number,
-    default: 0,
+    type: Map,
+    of: Boolean,
+    default: {},
   },
   createdAt: {
     type: Date,

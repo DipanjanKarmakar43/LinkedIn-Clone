@@ -64,6 +64,7 @@ export const getAboutUser = createAsyncThunk(
           token: user.token,
         },
       });
+      console.log("API response from /about:", response.data);
       return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data || error.message);
@@ -77,7 +78,6 @@ export const getAllUsers = createAsyncThunk(
     try {
       const response = await clientServer.get("/user/get_all_users");
       return thunkAPI.fulfillWithValue(response.data);
-
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data || error.message);
     }

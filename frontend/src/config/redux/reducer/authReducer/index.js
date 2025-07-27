@@ -8,7 +8,7 @@ import {
 } from "@/config/redux/action/authAction";
 
 const initialState = {
-  user: [],
+  user: null,
   isLoading: false,
   isError: false,
   isSuccess: false,
@@ -86,7 +86,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.profileFetched = true;
-        state.user = action.payload.profile;
+        state.user = action.payload;
       })
       .addCase(getAllUsers.fulfilled, (state, action) => {
         state.isLoading = false;

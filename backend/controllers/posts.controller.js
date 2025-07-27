@@ -164,46 +164,37 @@ export const delete_comment_of_user = async (req, res) => {
   }
 };
 
-export const increment_likes = async (req, res) => {
-  const { postId } = req.body;
+// Remove increment_likes and decrement_likes functions and replace with this:
+
+export const toggleLike = async (req, res) => {
+  const { postId, token } = req.body;
 
   try {
+    const user = await User.findOne({ token }).select("_id");
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    post.likes += 1;
-    await post.save();
+    const userIdStr = user._id.toString();
+    const isLiked = post.likes.get(userIdStr);
+
+    if (isLiked) {
+      // User has already liked, so unlike it
+      post.likes.delete(userIdStr);
+    } else {
+      // User has not liked, so like it
+      post.likes.set(userIdStr, true);
+    }
+
+    const updatedPost = await post.save();
 
     return res.status(200).json({
-      message: "Post liked successfully",
-      likes: post.likes,
+      message: "Like status updated",
+      post: updatedPost, // Return the full updated post
     });
   } catch (error) {
-    console.error("Error liking post:", error);
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-};
-
-// Decrement/Dislike a post
-export const decrement_likes = async (req, res) => {
-  const { postId } = req.body;
-
-  try {
-    const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ message: "Post not found" });
-
-    post.likes = Math.max(post.likes - 1, 0); // Prevent negative values
-    await post.save();
-
-    return res.status(200).json({
-      message: "Post disliked successfully",
-      likes: post.likes,
-    });
-  } catch (error) {
-    console.error("Error disliking post:", error);
+    console.error("Error toggling like:", error);
     return res.status(500).json({
       message: "Internal server error",
       error: error.message,

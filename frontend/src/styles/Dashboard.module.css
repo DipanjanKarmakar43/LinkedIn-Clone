@@ -96,7 +96,6 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  overflow-y: auto;
   gap: 2vh;
   min-height: 90vh;
 }
@@ -104,18 +103,6 @@
 .feedContainer hr {
   width: 100%;
   border: 0.1vh solid var(--border);
-}
-
-.feedContainer::-webkit-scrollbar {
-  width: 0.1vh;
-}
-
-.feedContainer::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.feedContainer::-webkit-scrollbar-thumb {
-  background-color: var(--background);
 }
 
 .feedAddPost {
@@ -158,6 +145,7 @@
   border: 0.1vh solid var(--border);
   opacity: 0.8;
 }
+
 .feedAddPostLink:focus {
   outline: none;
   border-color: var(--accent);
@@ -187,12 +175,141 @@
 }
 .feedPosts {
   min-height: 72vh;
-  padding: 2vh;
-  border: 0.1vh solid var(--border);
-  border-top-left-radius: 1vh;
-  border-top-right-radius: 1vh;
   background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  margin-bottom: 2vh;
+  align-items: stretch;
+  justify-content: flex-start;
 }
+
+.post {
+  height: fit-content;
+  width: 100%;
+  border: 0.1vh solid var(--border);
+  border-radius: 1vh;
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.postHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5vh;
+  width: 5vh;
+  height: 5vh;
+  margin: 2vh 2vh 0vh 2vh;
+}
+
+.postHeader img {
+  width: 100%;
+  height: 100%;
+  border-radius: 5vh;
+  object-fit: contain;
+  border: 0.1vh solid var(--border);
+}
+
+.postUserInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.postUserInfo h3 {
+  font-size: 2vh;
+  margin: 0;
+  color: var(--text);
+}
+
+.postUserInfo p {
+  font-size: 1.5vh;
+  margin: 0;
+  color: var(--text);
+}
+
+.postDelete {
+  left: 50vh;
+  position: relative;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e06847;
+  cursor: pointer;
+}
+
+.postContent {
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+}
+
+.postContent p {
+  font-size: 1.8vh;
+  margin: 2vh 2vh 2vh 2vh;
+  line-height: 2vh;
+}
+
+.postMedia {
+  width: 100%;
+  max-height: 60vh;
+  margin: 0vh 0vh 0vh 0vh;
+}
+
+.postMedia img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.postMedia video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.articleLink {
+  display: inline-block;
+  margin-top: 1vh;
+  font-size: 1.4vh;
+  color: var(--accent);
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+.postActions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2vh 2.5vh;
+  gap: 2vh;
+}
+
+.postActionButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1vh;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.liked {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.postActionButton p {
+  font-size: 1.8vh;
+  font-weight: 500;
+}
+
 .extraContainer {
   height: fit-content;
   flex: 1;
@@ -202,7 +319,7 @@
   align-items: center;
   border-radius: 1vh;
   padding: 2vh;
-  border: 0.1vh solid rgba(0, 0, 0, 0.2);
+  border: 0.1vh solid var(--border);
   color: var(--text);
   background-color: var(--background);
   z-index: 999;

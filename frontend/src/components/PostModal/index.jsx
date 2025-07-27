@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { createPost, getAllPosts } from "@/config/redux/action/postAction";
 import styles from "../../styles/PostModal.module.css";
 
 export default function PostModal({
@@ -7,14 +9,28 @@ export default function PostModal({
   file: incomingFile,
   fileType,
 }) {
+  const dispatch = useDispatch();
   const [postContent, setPostContent] = useState("");
   const [file, setFile] = useState(incomingFile || null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleRemoveFile = () => setFile(null);
 
-  const handleSubmit = () => {
-    console.log("Submitted post:", { postContent, file });
-    onClose();
+  const handleUpload = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      await dispatch(createPost({ file, body: postContent })).unwrap();
+      dispatch(getAllPosts());
+      setPostContent("");
+      onClose();
+    } catch (err) {
+      setError(err?.toString() || "Failed to upload post");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,12 +69,14 @@ export default function PostModal({
           </div>
         )}
 
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
         <button
           className={styles.submitBtn}
-          onClick={handleSubmit}
-          disabled={!postContent && !file}
+          onClick={handleUpload}
+          disabled={loading || (!postContent && !file)}
         >
-          Post
+          {loading ? "Posting..." : "Post"}
         </button>
       </div>
     </div>
