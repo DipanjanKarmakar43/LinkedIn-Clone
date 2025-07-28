@@ -6,6 +6,7 @@ import {
   getAllPosts,
   deletePost,
   toggleLikePost,
+  getAllComments,
 } from "@/config/redux/action/postAction";
 import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
 import { baseURL } from "@/config";
@@ -13,6 +14,8 @@ import styles from "../../styles/Dashboard.module.css";
 import UserLayout from "@/layout/UserLayout";
 import DashboardLayout from "@/layout/DashboardLayout";
 import PostModal from "@/components/PostModal";
+// 1. IMPORT the new CommentSection component
+import CommentSection from "@/components/CommentSection";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -23,6 +26,8 @@ export default function Dashboard() {
   const [showPostModal, setShowPostModal] = useState(false);
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState(null);
+  // 2. ADD state to track which post's comment section is open
+  const [activeCommentSection, setActiveCommentSection] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -117,12 +122,9 @@ export default function Dashboard() {
           <div className={styles.feedPosts}>
             {postState?.posts?.length > 0 ? (
               postState.posts.map((post) => {
-                // --- Logic for liking ---
                 const currentUserId = authState.user?.userId?._id;
-                // Check if the current user's ID is in the post's 'likes' map
                 const isLikedByCurrentUser =
                   post.likes && post.likes[currentUserId];
-                // Get the total number of likes from the 'likes' map
                 const likeCount = post.likes
                   ? Object.keys(post.likes).length
                   : 0;
@@ -135,7 +137,6 @@ export default function Dashboard() {
 
                 return (
                   <div key={post._id} className={styles.post}>
-                    {/* --- This section remains unchanged --- */}
                     <div className={styles.postHeader}>
                       <img
                         src={`${baseURL}/${
@@ -164,7 +165,6 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    {/* --- This section remains unchanged --- */}
                     <div className={styles.postContent}>
                       <p>{post.body}</p>
                       {post.media && (
@@ -209,12 +209,23 @@ export default function Dashboard() {
                         <p>{likeCount} Likes</p>
                       </div>
 
-                      <div className={styles.postActionButton}>
+                      <div
+                        onClick={() => {
+                          if (activeCommentSection === post._id) {
+                            setActiveCommentSection(null);
+                          } else {
+                            setActiveCommentSection(post._id);
+                            dispatch(getAllComments({ postId: post._id }));
+                          }
+                        }}
+                        className={styles.postActionButton}
+                      >
                         <span className="material-symbols-outlined">
                           chat_bubble
                         </span>
                         Comment
                       </div>
+
                       <div
                         onClick={() => {
                           const text = encodeURIComponent(post.body);
@@ -228,6 +239,9 @@ export default function Dashboard() {
                         Share
                       </div>
                     </div>
+                    {activeCommentSection === post._id && (
+                      <CommentSection postId={post._id} />
+                    )}
                   </div>
                 );
               })

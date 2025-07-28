@@ -84,3 +84,101 @@ export const toggleLikePost = createAsyncThunk(
     }
   }
 );
+
+export const getAllComments = createAsyncThunk(
+  "post/getAllComments",
+  async (postData, thunkAPI) => {
+    try {
+      const response = await clientServer.get("/get_comments", {
+        params: {
+          postId: postData.postId,
+        },
+      });
+      return thunkAPI.fulfillWithValue({
+        comments: response.data,
+        postId: postData.postId,
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || "Failed to fetch comments"
+      );
+    }
+  }
+);
+
+export const createComment = createAsyncThunk(
+  "post/createComment",
+  async (commentData, thunkAPI) => {
+    try {
+      // Assuming your API endpoint is /create_comment
+      const response = await clientServer.post("/create_comment", commentData);
+      return thunkAPI.fulfillWithValue(response.data.comment);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || "Failed to post comment"
+      );
+    }
+  }
+);
+
+// --- NEW ACTION: DELETE COMMENT ---
+export const deleteComment = createAsyncThunk(
+  "post/deleteComment",
+  async ({ commentId }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      // For axios.delete, the body must be sent in a `data` property
+      await clientServer.delete("/delete_comment", {
+        data: { commentId, token },
+      });
+      // Return the ID of the comment that was deleted
+      return thunkAPI.fulfillWithValue(commentId);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || "Failed to delete comment"
+      );
+    }
+  }
+);
+
+// --- NEW ACTION: EDIT COMMENT ---
+export const editComment = createAsyncThunk(
+  "post/editComment",
+  async ({ commentId, updatedBody }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await clientServer.put("/edit_comment", {
+        commentId,
+        updatedBody,
+        token,
+      });
+      // Return the updated comment object from the server
+      return thunkAPI.fulfillWithValue(response.data.comment);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || "Failed to edit comment"
+      );
+    }
+  }
+);
+
+// --- NEW ACTION: REPLY TO COMMENT ---
+export const replyToComment = createAsyncThunk(
+  "post/replyToComment",
+  async ({ commentId, replyBody }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await clientServer.post("/reply_comment", {
+        commentId, // This will be the parentCommentId on the backend
+        replyBody,
+        token,
+      });
+      // Return the new reply, which is also a comment object
+      return thunkAPI.fulfillWithValue(response.data.reply);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || "Failed to reply to comment"
+      );
+    }
+  }
+);

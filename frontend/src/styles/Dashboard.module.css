@@ -310,6 +310,190 @@
   font-weight: 500;
 }
 
+.commentSection {
+  padding: 1.5vh 2vh;
+  border-top: 1px solid var(--border);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.addComment {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1vh;
+}
+
+.addComment img {
+  width: 5vh;
+  height: 5vh;
+  border-radius: 5vh;
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: row;
+  height: 5vh;
+  width: 100%;
+  gap: 1.5vh;
+}
+
+.commentForm textarea {
+  width: 100%;
+  padding: 1.5vh;
+  border-radius: 5vh;
+  border: 0.1vh solid var(--border);
+  background-color: var(--background);
+  color: var(--text);
+  font-size: 14px;
+  resize: vertical;
+  min-height: 5vh;
+  line-height: 1.4;
+}
+.commentForm textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.commentButton {
+  align-self: flex-end;
+  border: none;
+  color: var(--primary);
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.commentButton:disabled {
+  color: var(--border);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.commentButton span {
+  font-size: 4vh;
+}
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vh;
+  margin-top: 1.5vh;
+}
+
+.commentItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5vh;
+}
+
+.commentItem img {
+  width: 4vh;
+  height: 4vh;
+  border-radius: 50%;
+}
+
+.commentContent {
+  background-color: var(--background);
+  padding: 8px 12px;
+  border-radius: 1vh;
+  width: 100%;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.commentHeader span {
+  font-size: 12px;
+  color: #666;
+}
+
+.commentContent p {
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.commentActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.commentActions button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  font-weight: bold;
+}
+
+.commentActions button:hover {
+  text-decoration: underline;
+}
+
+.editCommentTextarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 5px;
+}
+
+.editActions,
+.replyActions {
+  display: flex;
+  gap: 10px;
+}
+
+.editActions button,
+.replyActions button {
+  background-color: #0a66c2;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.editActions button[type="button"],
+.replyActions button[type="button"] {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+/* Style for indented replies */
+.replyItem {
+  margin-left: 50px; /* Indent replies */
+}
+
+.replyForm {
+  margin-top: 10px;
+}
+
+.replyForm textarea {
+  width: 100%;
+  border-radius: 6px;
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
 .extraContainer {
   height: fit-content;
   flex: 1;

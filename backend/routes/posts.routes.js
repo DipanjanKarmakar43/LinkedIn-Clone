@@ -7,7 +7,7 @@ import {
   createPost,
   deletePost,
   getAllPosts,
-  commentOnPost,
+  create_comment,
   get_comments_by_post,
   delete_comment_of_user,
   edit_comment,
@@ -43,7 +43,7 @@ router.route("/post").post(upload.single("media"), createPost);
 router.route("/posts").get(getAllPosts);
 router.route("/delete_post").delete(deletePost);
 router.route("/toggle_like").patch(toggleLike);
-router.route("/comment").post(commentOnPost);
+router.route("/create_comment").post(create_comment);
 router.route("/get_comments").get(get_comments_by_post);
 router.route("/delete_comment").delete(delete_comment_of_user);
 router.route("/edit_comment").put(edit_comment);
