@@ -6,8 +6,8 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding: 10vh 10vw 0vh 10vw;
-  gap: 5vh;
+  padding: 10vh 12vw 0vh 12vw;
+  gap: 2.5vh;
 }
 
 .profileContainer {
@@ -30,7 +30,7 @@
 }
 .profileCardBanner {
   width: 100%;
-  height: 10vh;
+  height: 8vh;
   background-color: var(--accent);
   border-top-left-radius: 1vh;
   border-top-right-radius: 1vh;
@@ -39,12 +39,11 @@
 .profileCardImage {
   width: 10vh;
   height: 10vh;
-  padding: 0.1vh;
+  /* padding: 0.1vh; */
   margin-left: 2vh;
   position: relative;
-  top: 4.5vh;
+  top: 2.5vh;
   border-radius: 50%;
-  background-color: antiquewhite;
   object-fit: cover;
   overflow: hidden;
   border: 0.1vh solid var(--border);
@@ -88,6 +87,12 @@
   justify-content: space-between;
   color: var(--text);
   text-decoration: none;
+}
+
+.connectionCard p {
+  font-size: 2vh;
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .feedContainer {
@@ -209,8 +214,7 @@
   width: 100%;
   height: 100%;
   border-radius: 5vh;
-  object-fit: contain;
-  border: 0.1vh solid var(--border);
+  object-fit: cover;
 }
 
 .postUserInfo {
@@ -339,6 +343,7 @@
   width: 5vh;
   height: 5vh;
   border-radius: 5vh;
+  object-fit: cover;
 }
 
 .commentForm {
@@ -356,11 +361,13 @@
   border: 0.1vh solid var(--border);
   background-color: var(--background);
   color: var(--text);
-  font-size: 14px;
-  resize: vertical;
-  min-height: 5vh;
+  font-size: 1.6vh;
+  resize: none;
+  overflow: hidden;
+  height: 5vh;
   line-height: 1.4;
 }
+
 .commentForm textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -387,111 +394,139 @@
 .commentsList {
   display: flex;
   flex-direction: column;
-  gap: 1.5vh;
-  margin-top: 1.5vh;
+  gap: 1vh;
+  margin-top: 1vh;
 }
 
 .commentItem {
   display: flex;
   align-items: flex-start;
-  gap: 1.5vh;
+  gap: 1vh;
 }
 
 .commentItem img {
-  width: 4vh;
-  height: 4vh;
+  width: 3vh;
+  height: 3vh;
   border-radius: 50%;
+  position: relative;
+  top: 0.5vh;
+  object-fit: cover;
 }
 
 .commentContent {
   background-color: var(--background);
-  padding: 8px 12px;
   border-radius: 1vh;
   width: 100%;
 }
 
 .commentHeader {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 0.5vh;
+}
+
+.commentHeader strong {
+  font-size: 1.6vh;
+  color: var(--text);
 }
 
 .commentHeader span {
-  font-size: 12px;
-  color: #666;
+  font-size: 1.1vh;
+  color: var(--text);
 }
 
 .commentContent p {
+  font-size: 1.6vh;
+  color: var(--text);
+  font-weight: 500;
   margin: 0;
   word-wrap: break-word;
 }
 
 .commentActions {
   display: flex;
-  gap: 10px;
-  margin-top: 5px;
-  font-size: 12px;
+  gap: 1vh;
+  margin-top: 0.5vh;
+  font-size: 1.2vh;
 }
 
-.commentActions button {
+.commentButton {
   background: none;
   border: none;
-  color: #666;
+  color: var(--text); /* base color */
+  opacity: 0.6;
   cursor: pointer;
   padding: 0;
   font-weight: bold;
+  text-decoration: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
-.commentActions button:hover {
+.reply:hover {
+  color: var(--accent);
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.edit:hover {
+  color: #1dbc60;
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.delete:hover {
+  color: #e06847;
+  opacity: 1;
   text-decoration: underline;
 }
 
 .editCommentTextarea {
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 8px;
-  margin-bottom: 5px;
+  border: 0.1vh solid var(--border);
+  background-color: var(--background);
+  color: var(--text);
+  border-radius: 0.5vh;
+  padding: 1vh;
+  margin-bottom: 0.5vh;
 }
 
 .editActions,
 .replyActions {
   display: flex;
-  gap: 10px;
+  gap: 1vh;
 }
 
 .editActions button,
 .replyActions button {
-  background-color: #0a66c2;
-  color: white;
+  background-color: var(--accent);
+  color: var(--background);
   border: none;
-  border-radius: 20px;
-  padding: 4px 12px;
+  border-radius: 5vh;
+  padding: 0.5vh 1.5vh;
   font-weight: bold;
   cursor: pointer;
 }
 
 .editActions button[type="button"],
 .replyActions button[type="button"] {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: var(--border);
+  color: var(--text);
 }
 
-/* Style for indented replies */
 .replyItem {
-  margin-left: 50px; /* Indent replies */
+  margin-left: 5vh;
 }
 
 .replyForm {
-  margin-top: 10px;
+  margin-top: 1vh;
 }
 
 .replyForm textarea {
   width: 100%;
-  border-radius: 6px;
-  padding: 8px;
-  border: 1px solid #ddd;
+  border-radius: 0.5vh;
+  padding: 1vh;
+  border: 0.1vh solid var(--border);
 }
 
 .extraContainer {
@@ -502,11 +537,12 @@
   justify-content: center;
   align-items: center;
   border-radius: 1vh;
-  padding: 2vh;
+  padding: 1.5vh;
   border: 0.1vh solid var(--border);
   color: var(--text);
   background-color: var(--background);
   z-index: 999;
+  gap: 2vh;
 }
 
 .extraContainer h2 {
@@ -516,5 +552,46 @@
 
 .extraContainer h3 {
   font-size: 1.5vh;
+  color: var(--text);
+}
+
+.topProfileCard {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: row;
+  border-radius: 1vh;
+  color: var(--text);
+  border: 0.1vh solid var(--border);
+  padding: 1vh;
+}
+
+.topProfileImage {
+  width: 5vh;
+  height: 5vh;
+  object-fit: cover;
+  margin-right: 2vh;
+}
+
+.topProfileImage img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.topProfileContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.topProfileContent h3 {
+  font-size: 1.6vh;
+  color: var(--text);
+}
+
+.topProfileContent p {
+  font-size: 1.3vh;
   color: var(--text);
 }

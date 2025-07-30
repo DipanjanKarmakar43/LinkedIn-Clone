@@ -46,23 +46,24 @@ export const createPost = createAsyncThunk(
 
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
-  async (postId, thunkAPI) => {
+  async ({ postId }, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.delete(`${baseURL}/delete_post`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { postId, token },
+      if (!token) {
+        return thunkAPI.rejectWithValue("No token found.");
+      }
+
+      // The backend needs the token for authorization
+      const response = await clientServer.delete(`/posts/delete/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (response.status === 200) {
-        return postId;
-      } else {
-        return thunkAPI.rejectWithValue("Post deletion failed");
-      }
+      // Return the ID of the deleted post to remove it from the state
+      return thunkAPI.fulfillWithValue(postId);
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "Post deletion failed"
-      );
+      return thunkAPI.rejectWithValue(error.response.data || error.message);
     }
   }
 );
@@ -110,7 +111,6 @@ export const createComment = createAsyncThunk(
   "post/createComment",
   async (commentData, thunkAPI) => {
     try {
-      // Assuming your API endpoint is /create_comment
       const response = await clientServer.post("/create_comment", commentData);
       return thunkAPI.fulfillWithValue(response.data.comment);
     } catch (error) {
@@ -121,17 +121,14 @@ export const createComment = createAsyncThunk(
   }
 );
 
-// --- NEW ACTION: DELETE COMMENT ---
 export const deleteComment = createAsyncThunk(
   "post/deleteComment",
   async ({ commentId }, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
-      // For axios.delete, the body must be sent in a `data` property
       await clientServer.delete("/delete_comment", {
         data: { commentId, token },
       });
-      // Return the ID of the comment that was deleted
       return thunkAPI.fulfillWithValue(commentId);
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -141,7 +138,6 @@ export const deleteComment = createAsyncThunk(
   }
 );
 
-// --- NEW ACTION: EDIT COMMENT ---
 export const editComment = createAsyncThunk(
   "post/editComment",
   async ({ commentId, updatedBody }, thunkAPI) => {
@@ -152,7 +148,6 @@ export const editComment = createAsyncThunk(
         updatedBody,
         token,
       });
-      // Return the updated comment object from the server
       return thunkAPI.fulfillWithValue(response.data.comment);
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -162,23 +157,38 @@ export const editComment = createAsyncThunk(
   }
 );
 
-// --- NEW ACTION: REPLY TO COMMENT ---
 export const replyToComment = createAsyncThunk(
   "post/replyToComment",
   async ({ commentId, replyBody }, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
       const response = await clientServer.post("/reply_comment", {
-        commentId, // This will be the parentCommentId on the backend
+        commentId,
         replyBody,
         token,
       });
-      // Return the new reply, which is also a comment object
       return thunkAPI.fulfillWithValue(response.data.reply);
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.message || "Failed to reply to comment"
       );
+    }
+  }
+);
+
+export const getUserPosts = createAsyncThunk(
+  "posts/getUserPosts",
+  async ({ token }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await clientServer.get("/api/posts/my_posts", config);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data || error.message);
     }
   }
 );

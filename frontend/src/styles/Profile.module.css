@@ -1,0 +1,375 @@
+.profilePageContainer {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  width: 50vw;
+  color: var(--text);
+  background-color: var(--background);
+  border-radius: 1vh;
+  gap: 2vh;
+  margin-bottom: 2vh;
+}
+.profileCard {
+  height: fit-content;
+  width: 100%;
+  background-color: var(--background);
+  border: 0.1vh solid var(--border);
+  border-radius: 1vh;
+  overflow: hidden;
+}
+
+.profileCardBanner {
+  width: 100%;
+  height: 20vh;
+  background-color: var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.profileCardImage {
+  width: 20vh;
+  height: 20vh;
+  border-radius: 50%;
+  background-color: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 6vh;
+  left: 5vh;
+}
+
+.profileCardImage img {
+  width: 95%;
+  height: 95%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 0.1vh solid var(--border);
+}
+
+.profileCardContent {
+  width: 100%;
+  height: fit-content;
+  padding: 7vh 2vh 2vh 2vh;
+  display: flex;
+  flex-direction: column;
+  /* gap: 1vh; */
+}
+
+.profileCardContent h1 {
+  font-size: 3.5vh;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.profileCardContent p {
+  font-size: 2vh;
+  color: var(--text);
+}
+
+.profileAbout {
+  width: 100%;
+  height: fit-content;
+  padding: 2vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+}
+
+.profileAbout h3 {
+  font-size: 2.5vh;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.profileAbout p {
+  font-size: 1.6vh;
+  color: var(--text);
+}
+
+.profileActions {
+  width: 100%;
+  height: fit-content;
+  padding: 2vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+}
+
+.profileActions button {
+  width: 100%;
+  height: 4vh;
+  background-color: var(--background);
+  border: 0.1vh solid var(--accent);
+  color: var(--accent);
+  border-radius: 0.5vh;
+  font-size: 1.6vh;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+}
+
+.profileActions button:hover {
+  background-color: var(--accent);
+  color: var(--background);
+}
+
+.profileConnections {
+  width: 100%;
+  height: fit-content;
+  padding: 2vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+}
+
+.profileConnections h3 {
+  font-size: 2.5vh;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.profileConnections a {
+  width: 100%;
+  color: var(--text);
+  font-size: 1.6vh;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+}
+
+.recentConnections {
+  width: 100%;
+  height: fit-content;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5vh;
+  margin-bottom: 1vh;
+}
+
+.recentConnectionItem {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+  /* padding: 1vh; */
+  border-radius: 1vh;
+  background-color: var(--background);
+  border: 0.1vh solid var(--border);
+  overflow: hidden;
+
+}
+
+.profileBanner {
+  width: 100%;
+  height: 8vh;
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recentConnectionItem img {
+  width: 8vh;
+  height: 8vh;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  position: relative;
+  top: 3vh;
+}
+
+.recentConnectionInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5vh;
+  padding: 3vh 1vh;
+}
+
+.profilePosts {
+  width: 100%;
+  height: fit-content;
+  padding: 2vh;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 1vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+}
+
+.profilePostsSectionHeader h3 {
+  font-size: 2.5vh;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+}
+
+.profilePostDisplay {
+  width: 100%;
+  height: fit-content;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5vh;
+}
+
+.postMedia {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+.postMedia img,
+.postMedia video {
+  width: 29vh;
+  height: fit-content;
+  border-radius: 0.5vh;
+  object-fit: cover;
+}
+
+.postItem {
+  width: fit-content;
+  height: fit-content;
+  padding: 1.5vh 1vh 1vh 1vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 1vh;
+}
+
+.profileExperience {
+  width: 100%;
+  height: fit-content;
+  padding: 2vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+}
+
+.profileSectionHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profileExperienceHeader h3 {
+  font-size: 2.5vh;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.profileExperienceHeader a {
+  text-decoration: none;
+  color: var(--accent);
+  font-size: 1.6vh;
+}
+
+.experienceItem {
+  padding: 1vh 2vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.experienceItem h4 {
+  font-size: 1.7vh;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.experienceItem p {
+  font-size: 1.5vh;
+  color: var(--text);
+}
+
+.profileEducation {
+  width: 100%;
+  height: fit-content;
+  padding: 2vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+}
+
+.profileEducationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profileEducationHeader h3 {
+  font-size: 2.5vh;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.profileSectionHeader button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1.6vh;
+  color: var(--accent);
+}
+
+.educationItem {
+  padding: 1vh 2vh;
+  border-radius: 1vh;
+  border: 0.1vh solid var(--border);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.educationItem h4 {
+  font-size: 1.7vh;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.educationItem p {
+  font-size: 1.5vh;
+  color: var(--text);
+}
+
+.itemActions {
+  display: flex;
+  flex-direction: row;
+  gap: 1vh;
+}
+
+.itemActions button {
+  background-color: var(--background);
+  border: none;
+  color: var(--text);
+  font-size: 1.6vh;
+  font-weight: 500;
+  cursor: pointer;
+}

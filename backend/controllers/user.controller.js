@@ -1,6 +1,7 @@
+import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import Profile from "../models/profile.model.js";
-
+import Connection from "../models/connections.model.js";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import PDFDocument from "pdfkit";
@@ -402,18 +403,26 @@ export const sendConnectionRequest = async (req, res) => {
       return res.status(404).json({ message: "Connection user not found" });
     }
 
-    const existingRequest = await ConnectionRequest.findOne({
-      userId: user._id,
-      connectionId: connectionUser._id,
+    if (user._id.equals(connectionUser._id)) {
+      return res
+        .status(400)
+        .json({ message: "You cannot connect with yourself." });
+    }
+
+    const existingRequest = await Connection.findOne({
+      $or: [
+        { userId: user._id, connectionId: connectionUser._id },
+        { userId: connectionUser._id, connectionId: user._id },
+      ],
     });
 
     if (existingRequest) {
       return res
         .status(400)
-        .json({ message: "Connection request already sent" });
+        .json({ message: "A connection or request already exists." });
     }
 
-    const request = new ConnectionRequest({
+    const request = new Connection({
       userId: user._id,
       connectionId: connectionUser._id,
       status: "pending",
@@ -421,7 +430,7 @@ export const sendConnectionRequest = async (req, res) => {
     await request.save();
     return res.status(201).json({
       message: "Connection request sent successfully",
-      requestId: request._id,
+      request,
     });
   } catch (error) {
     console.error("Send connection request error:", error);
@@ -432,7 +441,7 @@ export const sendConnectionRequest = async (req, res) => {
   }
 };
 
-export const getMyConnectionsRequest = async (req, res) => {
+export const getPendingConnectionRequests = async (req, res) => {
   const { token } = req.body;
 
   try {
@@ -441,20 +450,17 @@ export const getMyConnectionsRequest = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const requests = await ConnectionRequest.find({
-      userId: user._id,
-    }).populate("connectionId", "name email username profilePicture");
-
-    if (!requests || requests.length === 0) {
-      return res.status(404).json({ message: "No connection requests found" });
-    }
+    const requests = await Connection.find({
+      connectionId: user._id,
+      status: "pending",
+    }).populate("userId", "name email username profilePicture");
 
     return res.json({
-      message: "Connection requests fetched successfully",
-      connections: requests,
+      message: "Pending connection requests fetched successfully",
+      requests,
     });
   } catch (error) {
-    console.error("Get my connections request error:", error);
+    console.error("Get pending connections request error:", error);
     return res.status(500).json({
       message: "Internal server error",
       error: error.message,
@@ -470,15 +476,13 @@ export const whatAreMyConnections = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const connections = await ConnectionRequest.find({
+    const connections = await Connection.find({
       $or: [{ userId: user._id }, { connectionId: user._id }],
       status: "accepted",
     })
       .populate("userId", "name email username profilePicture")
       .populate("connectionId", "name email username profilePicture");
-    if (!connections || connections.length === 0) {
-      return res.status(404).json({ message: "No connections found" });
-    }
+
     return res.json({
       message: "Connections fetched successfully",
       connections,
@@ -500,12 +504,17 @@ export const acceptConnectionRequest = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const connection = await ConnectionRequest.findOne({
+    const connection = await Connection.findOne({
       _id: requestId,
       connectionId: user._id,
     });
     if (!connection) {
-      return res.status(404).json({ message: "Connection request not found" });
+      return res
+        .status(404)
+        .json({
+          message:
+            "Connection request not found or you are not authorized to accept it.",
+        });
     }
     connection.status = "accepted";
     await connection.save();
@@ -516,6 +525,42 @@ export const acceptConnectionRequest = async (req, res) => {
     });
   } catch (error) {
     console.error("Accept connection request error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const findUserAndProfile = async (req, res) => {
+  const { q } = req.query;
+
+  try {
+    if (!q) {
+      return res.status(400).json({ message: "A search term is required" });
+    }
+
+    const searchRegex = new RegExp(q, "i");
+
+    // The query is now simplified to only search the 'name' field
+    const users = await User.find({
+      name: { $regex: searchRegex },
+    }).select("-password -token");
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+
+    const userIds = users.map((user) => user._id);
+
+    const profiles = await Profile.find({ userId: { $in: userIds } }).populate(
+      "userId",
+      "name email username profilePicture"
+    );
+
+    return res.json(profiles);
+  } catch (error) {
+    console.error("Find user and profile error:", error);
     return res.status(500).json({
       message: "Internal server error",
       error: error.message,

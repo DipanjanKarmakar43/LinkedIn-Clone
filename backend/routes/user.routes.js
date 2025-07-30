@@ -14,7 +14,8 @@ import {
   sendConnectionRequest,
   acceptConnectionRequest,
   whatAreMyConnections,
-  getMyConnectionsRequest,
+  getPendingConnectionRequests,
+  findUserAndProfile,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -48,8 +49,9 @@ router.post("/update_profile_data", updateProfileData);
 router.get("/user/get_all_users", getAllUserProfiles);
 router.get("/user/download_resume", downloadProfile);
 router.post("/connections/request", sendConnectionRequest);
-router.get("/connections/requests", getMyConnectionsRequest);
-router.get("/connections", whatAreMyConnections);
+router.post("/connections/pending-requests", getPendingConnectionRequests);
+router.post("/connections", whatAreMyConnections);
 router.post("/connections/accept", acceptConnectionRequest);
+router.get("/users/search", findUserAndProfile);
 
 export default router;

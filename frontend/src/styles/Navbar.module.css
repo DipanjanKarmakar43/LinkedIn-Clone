@@ -23,19 +23,90 @@
   width: fit-content;
 }
 
+.searchContainer {
+  position: relative;
+  margin-left: 1vh;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background-color: var(--background);
+  border: 0.1vh solid var(--border);
+  padding: 1vh 2vh;
+  border-radius: 5vh;
+  width: 30vh;
+}
+
+.searchBar input {
+  border: none;
+  outline: none;
+  background: transparent;
+  margin-left: 1vh;
+  width: 100%;
+}
+
+.searchResultsDropdown {
+  position: absolute;
+  top: 6.3vh;
+  left: 0;
+  width: 100%;
+  background-color: var(--background);
+  border: 0.1vh solid var(--border);
+  border-bottom-left-radius: 1vh;
+  border-bottom-right-radius: 1vh;
+  padding: 1vh;
+  z-index: 1000;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.searchResultItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1vh;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.searchResultImage {
+  width: 4vh;
+  height: 4vh;
+  border-radius: 5vh;
+  object-fit: cover;
+  margin-right: 1.5vh;
+}
+
+.seeAllResults {
+  padding: 1vh 2vh;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.seeAllResults:hover {
+  color: var(--primary);
+}
+
 .nav-links-tab {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 4vh;
 }
+
 .navbtn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
 }
-.navbtn a {
+.navbtn p {
   text-decoration: none;
   color: var(--text);
   font-size: 1.6vh;
@@ -50,8 +121,7 @@
   opacity: 0.7;
 }
 
-.navbtn a:hover,
-.navbtn span:hover {
+.navbtn :hover {
   opacity: 1;
 }
 
@@ -93,7 +163,8 @@
   opacity: 1;
 }
 
-.sign-in-button {
+.sign-in-button,
+.logoutButton {
   padding: 0.5vh 2vh;
   font-size: 1.7vh;
   font-weight: 600;
@@ -101,4 +172,31 @@
   color: var(--accent);
   border: 0.3vh solid var(--accent);
   background-color: var(--background);
+}
+
+.authSection {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2vh;
+}
+
+.profileDisplay {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1vh;
+}
+
+.profileDisplay img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileDisplay span {
+  font-size: 1.6vh;
+  font-weight: 500;
+  color: var(--text);
 }

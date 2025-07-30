@@ -267,3 +267,35 @@ export const get_replies_by_comment = async (req, res) => {
     });
   }
 };
+
+export const getUserPosts = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+    const token = authHeader.split(" ")[1];
+
+    const user = await User.findOne({ token }).select("_id");
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+
+    const posts = await Post.find({ userId: user._id })
+      .populate("userId", "name username email profilePicture")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "User posts fetched successfully",
+      posts,
+    });
+  } catch (error) {
+    console.error("Get User Posts Error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};

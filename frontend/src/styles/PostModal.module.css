@@ -38,6 +38,7 @@
   width: 4.5vh;
   height: 4.5vh;
   border-radius: 5vh;
+  object-fit: cover;
 }
 
 .textarea {

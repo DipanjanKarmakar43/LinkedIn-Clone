@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-// Make sure you are importing the correct action
 import {
   getAllPosts,
   deletePost,
@@ -14,7 +13,6 @@ import styles from "../../styles/Dashboard.module.css";
 import UserLayout from "@/layout/UserLayout";
 import DashboardLayout from "@/layout/DashboardLayout";
 import PostModal from "@/components/PostModal";
-// 1. IMPORT the new CommentSection component
 import CommentSection from "@/components/CommentSection";
 
 export default function Dashboard() {
@@ -26,7 +24,6 @@ export default function Dashboard() {
   const [showPostModal, setShowPostModal] = useState(false);
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState(null);
-  // 2. ADD state to track which post's comment section is open
   const [activeCommentSection, setActiveCommentSection] = useState(null);
 
   useEffect(() => {
@@ -149,19 +146,25 @@ export default function Dashboard() {
                         <p>{new Date(post.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div className={styles.postDelete}>
-                        {authState.user?.userId?._id === post.userId?._id && (
-                          <span
-                            className="material-symbols-outlined"
-                            onClick={() => {
-                              console.log(
-                                `Attempting to delete post with ID: ${post._id}`
-                              );
-                              dispatch(deletePost(post._id));
-                            }}
-                          >
-                            delete
-                          </span>
-                        )}
+                        {/* Use the new variable for a reliable check */}
+                        {currentUserId &&
+                          currentUserId === post.userId?._id && (
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => {
+                                // Add a confirmation for better UX
+                                if (
+                                  window.confirm(
+                                    "Are you sure you want to delete this post?"
+                                  )
+                                ) {
+                                  dispatch(deletePost({ postId: post._id }));
+                                }
+                              }}
+                            >
+                              delete
+                            </span>
+                          )}
                       </div>
                     </div>
 

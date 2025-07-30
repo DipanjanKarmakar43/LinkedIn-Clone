@@ -1,17 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Navbar.module.css";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "@/config/redux/action/authAction";
-import { setTokenIsThere } from "@/config/redux/reducer/authReducer"; // ✅ import this to update token state if needed
+import { logoutUser, searchUsers } from "@/config/redux/action/authAction";
+import { setTokenIsThere } from "@/config/redux/reducer/authReducer";
+import { baseURL } from "@/config";
 
 export default function NavbarComponent() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [theme, setTheme] = useState("light");
+  const searchContainerRef = useRef(null);
+  const authState = useSelector((state) => state.auth);
 
-  const loggedIn = useSelector((state) => state.auth.loggedIn);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const { loggedIn, user, all_users, isLoading } = authState;
+  const [theme, setTheme] = useState("light");
   const isAuthPage = ["/login", "/register"].includes(router.pathname);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchTerm.trim() !== "") {
+        setDropdownVisible(true);
+        dispatch(searchUsers(searchTerm));
+      } else {
+        setDropdownVisible(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm, dispatch]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setDropdownVisible(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [searchContainerRef]);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme") || "light";
@@ -37,9 +68,14 @@ export default function NavbarComponent() {
     router.replace("/login");
   };
 
+  const handleSeeAll = () => {
+    setDropdownVisible(false);
+    router.push(`/discover?q=${searchTerm}`);
+  };
+
   return (
     <header className={styles.header}>
-      <a onClick={() => router.push("/")}>
+      <a onClick={() => router.push("/dashboard")}>
         <img
           src="/images/LinkedIn-Logo.png"
           alt="LinkedIn Logo"
@@ -47,35 +83,105 @@ export default function NavbarComponent() {
         />
       </a>
 
+      {/* Search Bar and Dropdown */}
+      {loggedIn && !isAuthPage && (
+        <div className={styles.searchContainer} ref={searchContainerRef}>
+          <div className={styles.searchBar}>
+            <span className="material-symbols-outlined">search</span>
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => searchTerm && setDropdownVisible(true)}
+            />
+          </div>
+          {isDropdownVisible && searchTerm && (
+            <>
+              <div className={styles.searchResultsDropdownLeft}></div>
+              <div className={styles.searchResultsDropdown}>
+                {isLoading ? (
+                  <div className={styles.searchResultItem}>Searching...</div>
+                ) : all_users?.length > 0 ? (
+                  <>
+                    {all_users.slice(0, 6).map((profile) => (
+                      <a
+                        key={profile._id}
+                        className={styles.searchResultItem}
+                        href={`/profile/${profile.userId._id}`}
+                      >
+                        <img
+                          src={
+                            profile?.userId?.profilePicture
+                              ? `${baseURL}/${profile.userId.profilePicture}`
+                              : "/default.jpg"
+                          }
+                          alt="Profile"
+                          className={styles.searchResultImage}
+                        />
+                        <span>{profile.userId.name}</span>
+                      </a>
+                    ))}
+                    <div
+                      className={styles.seeAllResults}
+                      onClick={handleSeeAll}
+                    >
+                      See all results
+                    </div>
+                  </>
+                ) : (
+                  <div className={styles.searchResultItem}>No users found.</div>
+                )}
+              </div>
+              <div className={styles.searchResultsDropdownRight}></div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Navigation Links */}
       {!isAuthPage && (
         <nav className={styles["nav-links-tab"]}>
-          <div className={styles.navbtn}>
+          <a
+            onClick={() => router.push("/dashboard")}
+            className={styles.navbtn}
+          >
             <span className="material-symbols-outlined">home</span>
-            <a href="/dashboard">Home</a>
-          </div>
-          <div className={styles.navbtn}>
+            <p>Home</p>
+          </a>
+          <a
+            onClick={() => router.push("/myConnections")}
+            className={styles.navbtn}
+          >
             <span className="material-symbols-outlined">
               notifications_active
             </span>
-            <a href="#">Notifications</a>
-          </div>
-          <div className={styles.navbtn}>
+            <p>Notifications</p>
+          </a>
+          <a onClick={() => router.push("/discover")} className={styles.navbtn}>
             <span className="material-symbols-outlined">groups</span>
-            <a href="/myConnections">My Network</a>
-          </div>
-          <div className={styles.navbtn}>
+            <p>My Network</p>
+          </a>
+          <a
+            onClick={() => router.push("/dashboard")}
+            className={styles.navbtn}
+          >
             <span className="material-symbols-outlined">work</span>
-            <a href="#">Jobs</a>
-          </div>
-          <div className={styles.navbtn}>
+            <p>Jobs</p>
+          </a>
+          <a
+            onClick={() => router.push("/dashboard")}
+            className={styles.navbtn}
+          >
             <span className="material-symbols-outlined">
               mark_unread_chat_alt
             </span>
-            <a href="#">Messaging</a>
-          </div>
+            <p>Messaging</p>
+          </a>
         </nav>
       )}
 
+      {/* Theme Toggle and Auth Section */}
       <div className={styles["nav-btn"]}>
         <button onClick={toggleTheme} className={styles.themeToggle}>
           {theme === "light" ? (
@@ -102,13 +208,39 @@ export default function NavbarComponent() {
                   Sign in
                 </button>
               </>
+            ) : // Check for user AND the nested user.userId to be safe
+            user && user.userId ? (
+              <div className={styles.authSection}>
+                <button onClick={handleLogout} className={styles.logoutButton}>
+                  Logout
+                </button>
+
+                <div className={styles.profileDisplay}>
+                  <img
+                    src={(() => {
+                      // CORRECTED: Access properties through user.userId
+                      const path =
+                        user.userId.profilePicture ||
+                        user.userId.avatar ||
+                        user.userId.picture;
+                      return path ? `${baseURL}/${path}` : "/default.jpg";
+                    })()}
+                    alt="Profile"
+                    className={styles.profilePic}
+                  />
+                  <div className={styles.profileDetails}>
+                    <span>{`Hello, ${
+                      // CORRECTED: Access properties through user.userId
+                      user.userId.name ||
+                      user.userId.username ||
+                      user.userId.fullName ||
+                      "User"
+                    }`}</span>
+                  </div>
+                </div>
+              </div>
             ) : (
-              <button
-                onClick={handleLogout}
-                className={styles["sign-in-button"]}
-              >
-                Logout
-              </button>
+              <div>Loading...</div>
             )}
           </>
         )}

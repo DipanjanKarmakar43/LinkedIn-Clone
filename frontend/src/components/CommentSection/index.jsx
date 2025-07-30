@@ -21,6 +21,7 @@ export default function CommentSection({ postId }) {
   const profilePic = user?.userId?.profilePicture;
   const imageSrc = profilePic ? `${baseURL}/${profilePic}` : "/default.jpg";
   const currentUserId = user?.userId?._id;
+  const maxDepth = 4;
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
@@ -48,7 +49,11 @@ export default function CommentSection({ postId }) {
   };
 
   const handleDelete = (commentId) => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this comment and all its replies?"
+      )
+    ) {
       dispatch(deleteComment({ commentId }));
     }
   };
@@ -85,7 +90,7 @@ export default function CommentSection({ postId }) {
               <div
                 key={comment._id}
                 className={styles.commentItem}
-                style={{ marginLeft: `${(comment.depth || 0) * 30}px` }}
+                style={{ marginLeft: `${(comment.depth || 0) * 4}vh` }}
               >
                 <img
                   src={`${baseURL}/${
@@ -117,7 +122,8 @@ export default function CommentSection({ postId }) {
                       <div className={styles.commentHeader}>
                         <strong>{comment.userId?.name || "User"}</strong>
                         <span>
-                          · {new Date(comment.createdAt).toLocaleDateString()}
+                          {" "}
+                          {new Date(comment.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                       <p>{comment.body}</p>
@@ -125,15 +131,26 @@ export default function CommentSection({ postId }) {
                   )}
 
                   <div className={styles.commentActions}>
-                    <button onClick={() => setReplyingTo(comment._id)}>
-                      Reply
-                    </button>
+                    {(comment.depth || 0) < maxDepth && (
+                      <button
+                        className={`${styles.commentButton} ${styles.reply}`}
+                        onClick={() => setReplyingTo(comment._id)}
+                      >
+                        Reply
+                      </button>
+                    )}
                     {isOwner && editingComment?._id !== comment._id && (
                       <>
-                        <button onClick={() => setEditingComment(comment)}>
+                        <button
+                          className={`${styles.commentButton} ${styles.edit}`}
+                          onClick={() => setEditingComment(comment)}
+                        >
                           Edit
                         </button>
-                        <button onClick={() => handleDelete(comment._id)}>
+                        <button
+                          className={`${styles.commentButton} ${styles.delete}`}
+                          onClick={() => handleDelete(comment._id)}
+                        >
                           Delete
                         </button>
                       </>
