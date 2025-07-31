@@ -4,7 +4,7 @@ import Profile from "../models/profile.model.js";
 import Connection from "../models/connections.model.js";
 import Post from "../models/posts.model.js";
 import crypto from "crypto";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 import PDFDocument from "pdfkit";
 import fs from "fs";
 
