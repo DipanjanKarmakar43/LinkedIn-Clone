@@ -12,6 +12,7 @@ import {
   getAcceptedConnections,
   acceptConnectionRequest,
   updateProfilePicture,
+  getSentRequests, // Make sure this is imported
 } from "@/config/redux/action/authAction";
 
 const initialState = {
@@ -25,6 +26,7 @@ const initialState = {
   profileFetched: false,
   connections: [],
   connectionRequests: [],
+  sentRequests: [], // 👈 THIS LINE WAS MISSING
   all_users: [],
   all_profiles_fetched: false,
 };
@@ -53,15 +55,12 @@ const authSlice = createSlice({
       // Login
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
-        state.message = "Knocking the door...";
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
         state.isSuccess = true;
         state.loggedIn = true;
-        state.user = action.payload.user; // This might be redundant if getAboutUser is called after
-        state.message = "Login successful!";
+        state.user = action.payload.user;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -71,14 +70,11 @@ const authSlice = createSlice({
       // Register
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
-        state.message = "Registering you...";
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
         state.isSuccess = true;
         state.loggedIn = true;
-        state.message = "Registration successful!";
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -95,9 +91,8 @@ const authSlice = createSlice({
       // Get User Profile
       .addCase(getAboutUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
         state.profileFetched = true;
-        state.user = action.payload; // This is where the user object with full profile is stored
+        state.user = action.payload;
       })
       .addCase(getAboutUser.pending, (state) => {
         state.isLoading = true;
@@ -110,55 +105,42 @@ const authSlice = createSlice({
       // Get All Users
       .addCase(getAllUsers.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
         state.all_profiles_fetched = true;
         state.all_users = action.payload;
       })
       // Search Users
       .addCase(searchUsers.pending, (state) => {
         state.isLoading = true;
-        state.message = "Searching...";
       })
       .addCase(searchUsers.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
         state.all_users = action.payload;
-        state.message = "Search complete.";
       })
       .addCase(searchUsers.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.all_users = [];
-        state.message = action.payload.message || "Search failed";
       })
-      // ✨ ADDED REDUCERS FOR PROFILE UPDATE
+      // Update Profile
       .addCase(updateUserProfileData.pending, (state) => {
         state.isLoading = true;
-        state.message = "Updating profile...";
       })
       .addCase(updateUserProfileData.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.message =
-          action.payload.message || "Profile updated successfully!";
-        // We don't need to set state.user here, as the dispatched 'getAboutUser'
-        // action will handle updating the user object with the latest data.
       })
       .addCase(updateUserProfileData.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload.message || "Failed to update profile.";
       })
-      .addCase(sendConnectionRequest.pending, (state) => {
-        state.isLoading = true;
-      })
+      // Connections
       .addCase(sendConnectionRequest.fulfilled, (state, action) => {
-        state.isLoading = false;
         state.isSuccess = true;
         state.message = action.payload.message;
+        state.sentRequests.push(action.payload.request);
       })
       .addCase(sendConnectionRequest.rejected, (state, action) => {
-        state.isLoading = false;
         state.isError = true;
         state.message = action.payload.message;
       })
@@ -167,6 +149,9 @@ const authSlice = createSlice({
       })
       .addCase(getAcceptedConnections.fulfilled, (state, action) => {
         state.connections = action.payload.connections;
+      })
+      .addCase(getSentRequests.fulfilled, (state, action) => {
+        state.sentRequests = action.payload.requests;
       })
       .addCase(acceptConnectionRequest.pending, (state) => {
         state.isLoading = true;
@@ -181,9 +166,9 @@ const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload.message;
       })
+      // Profile Picture
       .addCase(updateProfilePicture.pending, (state) => {
         state.isLoading = true;
-        state.message = "Uploading picture...";
       })
       .addCase(updateProfilePicture.fulfilled, (state, action) => {
         state.isLoading = false;

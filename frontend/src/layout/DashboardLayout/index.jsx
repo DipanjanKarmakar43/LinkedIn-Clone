@@ -20,10 +20,16 @@ export default function DashboardLayout({ children }) {
     }
   }, [dispatch, router]);
 
+  const isProfilePage = router.pathname.startsWith("/profile");
+
+  const topProfiles = authState.all_users?.filter(
+    (profile) => profile?.userId?._id !== authState.user?.userId?._id
+  );
+
   return (
     <div>
       <div className={styles.dashboardContainer}>
-        {router.pathname !== "/profile" && (
+        {!isProfilePage && (
           <div className={styles.profileContainer}>
             <div
               onClick={() => router.push("/dashboard")}
@@ -71,15 +77,16 @@ export default function DashboardLayout({ children }) {
           <h2>Top Profiles</h2>
 
           {authState.all_profiles_fetched &&
-            authState.all_users?.slice(0, 5).map((profile) => {
+            topProfiles?.slice(0, 5).map((profile) => {
               if (!profile) return null;
 
               return (
-                <div key={profile._id} className={styles.topProfileCard}>
-                  <div
-                    onClick={() => router.push(`/profile/${profile._id}`)}
-                    className={styles.topProfileImage}
-                  >
+                <div
+                  key={profile._id}
+                  className={styles.topProfileCard}
+                  onClick={() => router.push(`/profile/${profile.userId._id}`)}
+                >
+                  <div className={styles.topProfileImage}>
                     {(() => {
                       const profilePic = profile?.userId?.profilePicture;
                       const imageSrc = profilePic

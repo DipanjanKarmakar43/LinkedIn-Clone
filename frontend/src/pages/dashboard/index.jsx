@@ -15,6 +15,17 @@ import DashboardLayout from "@/layout/DashboardLayout";
 import PostModal from "@/components/PostModal";
 import CommentSection from "@/components/CommentSection";
 
+// 👇 Import socket and real-time actions
+import socket from "@/config/socket";
+import {
+  addPostRealTime,
+  removePostRealTime,
+  updatePostRealTime,
+  addCommentOrReplyRealTime,
+  removeCommentRealTime,
+  updateCommentRealTime,
+} from "@/config/redux/reducer/postReducer";
+
 export default function Dashboard() {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -36,6 +47,34 @@ export default function Dashboard() {
         dispatch(getAllUsers());
       }
     }
+
+    // 👇 Set up socket listeners
+    socket.on("new_post", (post) => dispatch(addPostRealTime(post)));
+    socket.on("post_deleted", (postId) => dispatch(removePostRealTime(postId)));
+    socket.on("post_updated", (post) => dispatch(updatePostRealTime(post)));
+    socket.on("new_comment", (comment) =>
+      dispatch(addCommentOrReplyRealTime(comment))
+    );
+    socket.on("new_reply", (reply) =>
+      dispatch(addCommentOrReplyRealTime(reply))
+    );
+    socket.on("comment_deleted", (data) =>
+      dispatch(removeCommentRealTime(data))
+    );
+    socket.on("comment_updated", (comment) =>
+      dispatch(updateCommentRealTime(comment))
+    );
+
+    // 👇 Clean up listeners on component unmount
+    return () => {
+      socket.off("new_post");
+      socket.off("post_deleted");
+      socket.off("post_updated");
+      socket.off("new_comment");
+      socket.off("new_reply");
+      socket.off("comment_deleted");
+      socket.off("comment_updated");
+    };
   }, [dispatch, authState.isTokenThere, authState.all_profiles_fetched]);
 
   const profilePic = authState.user?.userId?.profilePicture;
@@ -47,6 +86,14 @@ export default function Dashboard() {
       setFile(selectedFile);
       setFileType(type);
       setShowPostModal(true);
+    }
+  };
+
+  const handleDeletePost = (postId) => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      const token = localStorage.getItem("token");
+      // Dispatching the original action which will also trigger the socket emit
+      dispatch(deletePost({ postId, token }));
     }
   };
 
@@ -120,6 +167,7 @@ export default function Dashboard() {
             {postState?.posts?.length > 0 ? (
               postState.posts.map((post) => {
                 const currentUserId = authState.user?.userId?._id;
+                // Likes is a Map on the backend, but becomes an object when JSON serialized
                 const isLikedByCurrentUser =
                   post.likes && post.likes[currentUserId];
                 const likeCount = post.likes
@@ -146,21 +194,11 @@ export default function Dashboard() {
                         <p>{new Date(post.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div className={styles.postDelete}>
-                        {/* Use the new variable for a reliable check */}
                         {currentUserId &&
                           currentUserId === post.userId?._id && (
                             <span
                               className="material-symbols-outlined"
-                              onClick={() => {
-                                // Add a confirmation for better UX
-                                if (
-                                  window.confirm(
-                                    "Are you sure you want to delete this post?"
-                                  )
-                                ) {
-                                  dispatch(deletePost({ postId: post._id }));
-                                }
-                              }}
+                              onClick={() => handleDeletePost(post._id)}
                             >
                               delete
                             </span>
@@ -229,15 +267,7 @@ export default function Dashboard() {
                         Comment
                       </div>
 
-                      <div
-                        onClick={() => {
-                          const text = encodeURIComponent(post.body);
-                          const url = encodeURIComponent("https://example.com");
-                          const twitterUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-                          window.open(twitterUrl, "_blank");
-                        }}
-                        className={styles.postActionButton}
-                      >
+                      <div className={styles.postActionButton}>
                         <span className="material-symbols-outlined">share</span>
                         Share
                       </div>

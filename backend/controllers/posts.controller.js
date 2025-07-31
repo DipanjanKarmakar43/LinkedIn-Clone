@@ -21,9 +21,17 @@ export const createPost = async (req, res) => {
     });
 
     await post.save();
+
+    // 👇 Populate post and emit event for real-time update
+    const populatedPost = await Post.findById(post._id).populate(
+      "userId",
+      "name username email profilePicture"
+    );
+    req.io.emit("new_post", populatedPost);
+
     return res.status(201).json({
       message: "Post created successfully",
-      post,
+      post: populatedPost,
     });
   } catch (error) {
     console.error("Error creating post:", error);
@@ -56,7 +64,8 @@ export const getAllPosts = async (req, res) => {
 };
 
 export const deletePost = async (req, res) => {
-  const { postId, token } = req.body;
+  const { postId } = req.params;
+  const { token } = req.body;
   try {
     const user = await User.findOne({ token }).select("_id");
     if (!user) return res.status(401).json({ message: "Unauthorized" });
@@ -68,6 +77,10 @@ export const deletePost = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
     await Post.deleteOne({ _id: postId });
+
+    // 👇 Emit event for real-time deletion
+    req.io.emit("post_deleted", postId);
+
     return res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error("Error deleting post:", error);
@@ -96,9 +109,17 @@ export const toggleLike = async (req, res) => {
       post.likes.set(userIdStr, true);
     }
     const updatedPost = await post.save();
+
+    // 👇 Populate and emit event for real-time like update
+    const populatedPost = await Post.findById(updatedPost._id).populate(
+      "userId",
+      "name username email profilePicture"
+    );
+    req.io.emit("post_updated", populatedPost);
+
     return res.status(200).json({
       message: "Like status updated",
-      post: updatedPost,
+      post: populatedPost,
     });
   } catch (error) {
     console.error("Error toggling like:", error);
@@ -150,6 +171,10 @@ export const create_comment = async (req, res) => {
       "userId",
       "name username profilePicture"
     );
+
+    // 👇 Emit event for real-time new comment
+    req.io.emit("new_comment", populatedComment);
+
     return res.status(201).json({
       message: "Comment created successfully",
       comment: populatedComment,
@@ -176,6 +201,11 @@ export const delete_comment_of_user = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
     await Comment.deleteOne({ _id: commentId });
+    // Note: Also delete all replies in a real app
+
+    // 👇 Emit event for real-time comment deletion
+    req.io.emit("comment_deleted", { commentId, postId: comment.postId });
+
     return res.status(200).json({ message: "Comment deleted successfully" });
   } catch (error) {
     console.error("Error deleting comment:", error);
@@ -202,6 +232,9 @@ export const edit_comment = async (req, res) => {
     await comment.save();
 
     await comment.populate("userId", "name profilePicture");
+
+    // 👇 Emit event for real-time comment update
+    req.io.emit("comment_updated", comment);
 
     return res.status(200).json({
       message: "Comment updated successfully",
@@ -235,6 +268,9 @@ export const reply_to_comment = async (req, res) => {
     await reply.save();
 
     await reply.populate("userId", "name profilePicture");
+
+    // 👇 Emit event for real-time new reply
+    req.io.emit("new_reply", reply);
 
     return res.status(201).json({
       message: "Reply added successfully",

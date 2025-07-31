@@ -204,9 +204,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-start;
   gap: 1.5vh;
-  width: 5vh;
-  height: 5vh;
+  width: 6vh;
+  height: 6vh;
   margin: 2vh 2vh 0vh 2vh;
 }
 
@@ -564,6 +565,7 @@
   color: var(--text);
   border: 0.1vh solid var(--border);
   padding: 1vh;
+  cursor: pointer;
 }
 
 .topProfileImage {

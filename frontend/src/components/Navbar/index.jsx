@@ -105,10 +105,13 @@ export default function NavbarComponent() {
                 ) : all_users?.length > 0 ? (
                   <>
                     {all_users.slice(0, 6).map((profile) => (
-                      <a
-                        key={profile._id}
+                      // Use onClick with router.push for smoother navigation
+                      <div
+                        key={profile.userId._id}
                         className={styles.searchResultItem}
-                        href={`/profile/${profile.userId._id}`}
+                        onClick={() =>
+                          router.push(`/profile/${profile.userId._id}`)
+                        }
                       >
                         <img
                           src={
@@ -120,7 +123,7 @@ export default function NavbarComponent() {
                           className={styles.searchResultImage}
                         />
                         <span>{profile.userId.name}</span>
-                      </a>
+                      </div>
                     ))}
                     <div
                       className={styles.seeAllResults}

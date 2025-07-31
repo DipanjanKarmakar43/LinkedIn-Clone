@@ -27,15 +27,15 @@ export const createPost = createAsyncThunk(
       const formData = new FormData();
       formData.append("token", localStorage.getItem("token"));
       formData.append("body", body);
-      formData.append("media", file);
+      if (file) {
+        formData.append("media", file);
+      }
 
       const response = await axios.post(`${baseURL}/post`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      return response.status === 201
-        ? thunkAPI.fulfillWithValue("Post uploaded successfully")
-        : thunkAPI.rejectWithValue("Post upload failed");
+      return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data || "Post upload failed"
@@ -55,9 +55,7 @@ export const deletePost = createAsyncThunk(
 
       // The backend needs the token for authorization
       const response = await clientServer.delete(`/posts/delete/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        data: { token: token }, // Pass token in the request body
       });
 
       // Return the ID of the deleted post to remove it from the state

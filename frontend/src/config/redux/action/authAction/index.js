@@ -210,3 +210,43 @@ export const updateProfilePicture = createAsyncThunk(
     }
   }
 );
+
+export const getSentRequests = createAsyncThunk(
+  "user/getSentRequests",
+  async ({ token }, thunkAPI) => {
+    try {
+      const response = await clientServer.post("/connections/sent-requests", {
+        token,
+      });
+      return thunkAPI.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data || error.message);
+    }
+  }
+);
+
+export const downloadResume = createAsyncThunk(
+  "user/downloadResume",
+  async ({ userId }, thunkAPI) => {
+    try {
+      const response = await clientServer.get("/user/download_resume", {
+        params: { userId },
+      });
+
+      const filePath = response.data.path;
+      const fileUrl = `${clientServer.defaults.baseURL}/${filePath}`;
+
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.setAttribute("download", `resume-${userId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+
+      return thunkAPI.fulfillWithValue("Download started successfully.");
+    } catch (error) {
+      console.error("Download resume error:", error);
+      return thunkAPI.rejectWithValue(error.response.data || "Failed to download resume");
+    }
+  }
+);

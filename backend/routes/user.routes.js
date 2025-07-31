@@ -16,6 +16,8 @@ import {
   whatAreMyConnections,
   getPendingConnectionRequests,
   findUserAndProfile,
+  getSentConnectionRequests,
+  getProfileByUserId,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -50,8 +52,10 @@ router.get("/user/get_all_users", getAllUserProfiles);
 router.get("/user/download_resume", downloadProfile);
 router.post("/connections/request", sendConnectionRequest);
 router.post("/connections/pending-requests", getPendingConnectionRequests);
+router.post("/connections/sent-requests", getSentConnectionRequests);
 router.post("/connections", whatAreMyConnections);
 router.post("/connections/accept", acceptConnectionRequest);
 router.get("/users/search", findUserAndProfile);
+router.get("/profile/:userId", getProfileByUserId);
 
 export default router;

@@ -5,6 +5,7 @@ import {
   updateUserProfileData,
   getAcceptedConnections,
   updateProfilePicture,
+  downloadResume,
 } from "@/config/redux/action/authAction";
 import { getUserPosts } from "@/config/redux/action/postAction";
 import { useRouter } from "next/router";
@@ -120,6 +121,12 @@ export default function ProfilePage() {
     }
   };
 
+  const handleDownloadResume = () => {
+    if (user?.userId?._id) {
+      dispatch(downloadResume({ userId: user.userId._id }));
+    }
+  };
+
   if (isLoading || !user) {
     return (
       <UserLayout>
@@ -158,11 +165,11 @@ export default function ProfilePage() {
           initialData={currentItem}
         />
         <input
-            type="file"
-            ref={fileInputRef}
-            hidden
-            accept="image/*"
-            onChange={handleFileChange}
+          type="file"
+          ref={fileInputRef}
+          hidden
+          accept="image/*"
+          onChange={handleFileChange}
         />
 
         <div className={styles.profilePageContainer}>
@@ -188,13 +195,17 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.profileActions}>
+            <button onClick={() => fileInputRef.current.click()}>
+              Change Picture{" "}
+              <span className="material-symbols-outlined">settings</span>
+            </button>
             <button onClick={() => openModal("editProfile", user)}>
               Edit Profile{" "}
               <span className="material-symbols-outlined">edit</span>
             </button>
-            <button onClick={() => fileInputRef.current.click()}>
-              Change Picture{" "}
-              <span className="material-symbols-outlined">settings</span>
+            <button onClick={handleDownloadResume}>
+              Download Resume{" "}
+              <span className="material-symbols-outlined">download</span>
             </button>
           </div>
 

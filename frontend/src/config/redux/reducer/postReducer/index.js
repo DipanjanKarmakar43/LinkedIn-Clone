@@ -23,6 +23,22 @@ const initialState = {
   postId: "",
 };
 
+const buildThread = (comments, parentId, depth) => {
+  let thread = [];
+  const children = comments.filter(
+    (c) => String(c.parentCommentId) === String(parentId)
+  );
+
+  if (children.length > 0) {
+    children.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    children.forEach((child) => {
+      thread.push({ ...child, depth: depth });
+      thread = thread.concat(buildThread(comments, child._id, depth + 1));
+    });
+  }
+  return thread;
+};
+
 const postSlice = createSlice({
   name: "post",
   initialState,
@@ -30,6 +46,66 @@ const postSlice = createSlice({
     reset: () => initialState,
     restPostId: (state) => {
       state.postId = "";
+    },
+    addPostRealTime: (state, action) => {
+      if (!state.posts.find((p) => p._id === action.payload._id)) {
+        state.posts.unshift(action.payload);
+      }
+    },
+    removePostRealTime: (state, action) => {
+      state.posts = state.posts.filter((post) => post._id !== action.payload);
+    },
+    updatePostRealTime: (state, action) => {
+      const updatedPost = action.payload;
+      const index = state.posts.findIndex((p) => p._id === updatedPost._id);
+      if (index !== -1) {
+        state.posts[index] = updatedPost;
+      }
+    },
+    addCommentOrReplyRealTime: (state, action) => {
+      const newComment = action.payload;
+      if (state.postId === newComment.postId) {
+        if (!state.comments.find((c) => c._id === newComment._id)) {
+          const allComments = [...state.comments, newComment];
+          const topLevelComments = allComments.filter(
+            (c) => !c.parentCommentId
+          );
+          state.comments = buildThread(allComments, null, 0);
+        }
+      }
+    },
+    removeCommentRealTime: (state, action) => {
+      const { commentId, postId } = action.payload;
+      if (state.postId === postId) {
+        const commentsToDelete = [commentId];
+        const commentIndex = state.comments.findIndex(
+          (c) => c._id === commentId
+        );
+        if (commentIndex === -1) return;
+        const parentDepth = state.comments[commentIndex].depth;
+        for (let i = commentIndex + 1; i < state.comments.length; i++) {
+          if (state.comments[i].depth > parentDepth) {
+            commentsToDelete.push(state.comments[i]._id);
+          } else {
+            break;
+          }
+        }
+        state.comments = state.comments.filter(
+          (comment) => !commentsToDelete.includes(comment._id)
+        );
+      }
+    },
+    updateCommentRealTime: (state, action) => {
+      const updatedComment = action.payload;
+      if (state.postId === updatedComment.postId) {
+        const index = state.comments.findIndex(
+          (c) => c._id === updatedComment._id
+        );
+        if (index !== -1) {
+          const originalDepth = state.comments[index].depth;
+          state.comments[index] = { ...updatedComment, depth: originalDepth };
+        }
+      }
     },
   },
   extraReducers: (builder) => {
@@ -49,7 +125,7 @@ const postSlice = createSlice({
       })
       .addCase(createPost.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.posts.unshift(action.payload);
+        state.posts.unshift(action.payload.post);
       })
       .addCase(createPost.rejected, (state, action) => {
         state.isLoading = false;
@@ -57,73 +133,61 @@ const postSlice = createSlice({
         state.message = action.payload || "Failed to create post";
       })
       .addCase(toggleLikePost.fulfilled, (state, action) => {
-        const updatedPostFromServer = action.payload;
-        const postIndex = state.posts.findIndex(
-          (p) => p._id === updatedPostFromServer._id
-        );
-        if (postIndex !== -1) {
-          state.posts[postIndex].likes = updatedPostFromServer.likes;
+        const updatedPost = action.payload;
+        const index = state.posts.findIndex((p) => p._id === updatedPost._id);
+        if (index !== -1) {
+          state.posts[index] = updatedPost;
         }
-      })
-      .addCase(deletePost.pending, (state) => {
-        state.isLoading = true;
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         state.isLoading = false;
         const deletedPostId = action.payload;
         state.posts = state.posts.filter((post) => post._id !== deletedPostId);
       })
-      .addCase(deletePost.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload || "Failed to delete post";
-      })
       .addCase(createComment.fulfilled, (state, action) => {
-        const newComment = { ...action.payload, depth: 0 };
-        state.comments.unshift(newComment);
+        const parentId = action.payload.parentCommentId;
+        if (parentId) {
+          // It's a reply
+          const parentIndex = state.comments.findIndex(
+            (comment) => comment._id === parentId
+          );
+          if (parentIndex !== -1) {
+            const parentComment = state.comments[parentIndex];
+            const replyWithDepth = {
+              ...action.payload,
+              depth: (parentComment.depth || 0) + 1,
+            };
+            let lastChildIndex = parentIndex;
+            for (let i = parentIndex + 1; i < state.comments.length; i++) {
+              if (state.comments[i].depth > parentComment.depth) {
+                lastChildIndex = i;
+              } else {
+                break;
+              }
+            }
+            state.comments.splice(lastChildIndex + 1, 0, replyWithDepth);
+          }
+        } else {
+          // It's a top-level comment
+          const newComment = { ...action.payload, depth: 0 };
+          state.comments.unshift(newComment);
+        }
       })
       .addCase(getAllComments.fulfilled, (state, action) => {
         const comments = action.payload.comments.comments;
-        const commentMap = {};
-        comments.forEach((comment) => {
-          const parentId = comment.parentCommentId || null;
-          if (!commentMap[parentId]) {
-            commentMap[parentId] = [];
-          }
-          commentMap[parentId].push(comment);
-          commentMap[parentId].sort(
-            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-          );
-        });
-
-        const buildThread = (parentId, depth) => {
-          let thread = [];
-          const children = commentMap[parentId];
-          if (children) {
-            children.forEach((child) => {
-              thread.push({ ...child, depth: depth });
-              thread = thread.concat(buildThread(child._id, depth + 1));
-            });
-          }
-          return thread;
-        };
-
-        const sortedComments = buildThread(null, 0);
+        const topLevelComments = comments.filter((c) => !c.parentCommentId);
+        const sortedComments = buildThread(comments, null, 0);
         state.comments = sortedComments;
         state.postId = action.payload.postId;
       })
       .addCase(deleteComment.fulfilled, (state, action) => {
         const deletedCommentId = action.payload;
         const commentsToDelete = [deletedCommentId];
-
         const commentIndex = state.comments.findIndex(
           (c) => c._id === deletedCommentId
         );
-
         if (commentIndex === -1) return;
-
         const parentDepth = state.comments[commentIndex].depth;
-
         for (let i = commentIndex + 1; i < state.comments.length; i++) {
           if (state.comments[i].depth > parentDepth) {
             commentsToDelete.push(state.comments[i]._id);
@@ -131,7 +195,6 @@ const postSlice = createSlice({
             break;
           }
         }
-
         state.comments = state.comments.filter(
           (comment) => !commentsToDelete.includes(comment._id)
         );
@@ -151,14 +214,12 @@ const postSlice = createSlice({
         const parentIndex = state.comments.findIndex(
           (comment) => comment._id === newReply.parentCommentId
         );
-
         if (parentIndex !== -1) {
           const parentComment = state.comments[parentIndex];
           const replyWithDepth = {
             ...newReply,
             depth: (parentComment.depth || 0) + 1,
           };
-
           let lastChildIndex = parentIndex;
           for (let i = parentIndex + 1; i < state.comments.length; i++) {
             if (state.comments[i].depth > parentComment.depth) {
@@ -185,5 +246,15 @@ const postSlice = createSlice({
   },
 });
 
-export const { reset, restPostId } = postSlice.actions;
+export const {
+  reset,
+  restPostId,
+  addPostRealTime,
+  removePostRealTime,
+  updatePostRealTime,
+  addCommentOrReplyRealTime,
+  removeCommentRealTime,
+  updateCommentRealTime,
+} = postSlice.actions;
+
 export default postSlice.reducer;
