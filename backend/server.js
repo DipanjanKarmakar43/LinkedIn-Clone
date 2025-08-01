@@ -15,12 +15,26 @@ const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "PATCH"] },
 });
 
+// const cors = require("cors");
+
+const allowedOrigins = [
+  "http://localhost:3000", // local dev frontend
+  "https://linkedin-ebmh.onrender.com", // deployed frontend
+];
+
 app.use(
   cors({
-    origin: "https://linkedin-ebmh.onrender.com",
-    credentials: true, // if using cookies/auth
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
+
 app.use(express.json());
 
 app.use((req, res, next) => {

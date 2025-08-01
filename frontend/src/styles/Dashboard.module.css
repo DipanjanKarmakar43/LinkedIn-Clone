@@ -204,16 +204,21 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
-  gap: 1.5vh;
-  width: 6vh;
-  height: 6vh;
-  margin: 2vh 2vh 0vh 2vh;
+  justify-content: space-between;
+  margin: 1.5vh 1.5vh 0vh 1.5vh;
 }
 
-.postHeader img {
-  width: 100%;
-  height: 100%;
+.postHeaderLeft {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1vh;
+}
+
+.postHeaderLeft img {
+  width: 6vh;
+  height: 6vh;
   border-radius: 5vh;
   object-fit: cover;
 }
@@ -224,7 +229,8 @@
   justify-content: center;
 }
 
-.postUserInfo h3 {
+.postUserInfo h2 {
+  text-wrap: nowrap;
   font-size: 2vh;
   margin: 0;
   color: var(--text);
@@ -236,10 +242,18 @@
   color: var(--text);
 }
 
+.postHeaderRight {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1vh;
+  margin-right: 1.5vh;
+}
+
 .postDelete {
-  left: 50vh;
-  position: relative;
-  margin-left: auto;
+  /* left: 50vh; */
+  /* position: relative; */
+  /* margin-left: auto; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -269,6 +283,8 @@
   width: 100%;
   height: auto;
   object-fit: cover;
+  border-top: 0.1vh solid var(--border);
+  border-bottom: 0.1vh solid var(--border);
 }
 
 .postMedia video {

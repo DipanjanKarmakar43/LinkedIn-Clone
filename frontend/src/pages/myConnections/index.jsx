@@ -123,8 +123,7 @@ export default function MyConnectionsPage() {
                   })
                 ) : (
                   <p>
-                    You have no connections yet. Go to the Discover page to find
-                    people!
+                    You have no connections.
                   </p>
                 )}
               </div>

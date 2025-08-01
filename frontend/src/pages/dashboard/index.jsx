@@ -167,7 +167,6 @@ export default function Dashboard() {
             {postState?.posts?.length > 0 ? (
               postState.posts.map((post) => {
                 const currentUserId = authState.user?.userId?._id;
-                // Likes is a Map on the backend, but becomes an object when JSON serialized
                 const isLikedByCurrentUser =
                   post.likes && post.likes[currentUserId];
                 const likeCount = post.likes
@@ -183,26 +182,30 @@ export default function Dashboard() {
                 return (
                   <div key={post._id} className={styles.post}>
                     <div className={styles.postHeader}>
-                      <img
-                        src={`${baseURL}/${
-                          post.userId?.profilePicture || "default.jpg"
-                        }`}
-                        alt="Profile"
-                      />
-                      <div className={styles.postUserInfo}>
-                        <h3>{post.userId?.name || "Unknown User"}</h3>
-                        <p>{new Date(post.createdAt).toLocaleDateString()}</p>
+                      <div className={styles.postHeaderLeft}>
+                        <img
+                          src={`${baseURL}/${
+                            post.userId?.profilePicture || "default.jpg"
+                          }`}
+                          alt="Profile"
+                        />
+                        <div className={styles.postUserInfo}>
+                          <h2>{post.userId?.name || "Unknown User"}</h2>
+                          <p>{new Date(post.createdAt).toLocaleDateString()}</p>
+                        </div>
                       </div>
-                      <div className={styles.postDelete}>
-                        {currentUserId &&
-                          currentUserId === post.userId?._id && (
-                            <span
-                              className="material-symbols-outlined"
-                              onClick={() => handleDeletePost(post._id)}
-                            >
-                              delete
-                            </span>
-                          )}
+                      <div className={styles.postHeaderRight}>
+                        <div className={styles.postDelete}>
+                          {currentUserId &&
+                            currentUserId === post.userId?._id && (
+                              <span
+                                className="material-symbols-outlined"
+                                onClick={() => handleDeletePost(post._id)}
+                              >
+                                delete
+                              </span>
+                            )}
+                        </div>
                       </div>
                     </div>
 
