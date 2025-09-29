@@ -1,11 +1,11 @@
+import PDFDocument from "pdfkit";
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import Profile from "../models/profile.model.js";
 import Connection from "../models/connections.model.js";
 import Post from "../models/posts.model.js";
 import crypto from "crypto";
-import bcrypt from 'bcryptjs';
-import PDFDocument from "pdfkit";
+import bcrypt from "bcryptjs";
 import fs from "fs";
 
 const convertUserDataToPDF = async (userData) => {
@@ -245,6 +245,9 @@ export const login = async (req, res) => {
   }
 };
 
+// route: POST /upload-profile
+// middleware: upload.single("profilePicture")
+
 export const uploadProfilePicture = async (req, res) => {
   try {
     if (!req.file) {
@@ -252,21 +255,18 @@ export const uploadProfilePicture = async (req, res) => {
     }
 
     const token = req.headers.authorization?.split(" ")[1] || req.body.token;
-    if (!token) {
+    if (!token)
       return res.status(401).json({ message: "Authorization required" });
-    }
 
     const user = await User.findOne({ token });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    user.profilePicture = req.file.filename;
+    user.profilePicture = req.file.path; // Cloudinary URL
     await user.save();
 
     return res.json({
       message: "Profile picture uploaded successfully",
-      profilePicture: req.file.filename,
+      profilePicture: req.file.path,
     });
   } catch (error) {
     return res.status(500).json({
@@ -416,28 +416,50 @@ export const getAllUserProfiles = async (req, res) => {
   }
 };
 
+
 export const downloadProfile = async (req, res) => {
   try {
-    const { userId } = req.query;
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
-    const userProfile = await Profile.findOne({ userId }).populate(
-      "userId",
-      "name email username profilePicture"
+    const { token } = req.body;
+
+    const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Create new PDF
+    const doc = new PDFDocument();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${user.username}_profile.pdf`
     );
-    if (!userProfile) {
-      return res.status(404).json({ message: "Profile not found" });
+
+    doc.pipe(res);
+
+    // Add profile picture from Cloudinary URL (if exists)
+    if (user.profilePicture) {
+      try {
+        const profilePicUrl = user.profilePicture;
+        // pdfkit can load from URL directly
+        doc.image(profilePicUrl, 50, 50, { width: 100, height: 100 });
+      } catch (err) {
+        console.error("Failed to add profile picture:", err.message);
+      }
     }
-    const outputPath = await convertUserDataToPDF(userProfile);
-    return res.json({
-      message: "Resume generated successfully",
-      path: outputPath,
-    });
+
+    // Add text fields
+    doc.fontSize(20).text("User Profile", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(14).text(`Name: ${user.name || "N/A"}`);
+    doc.text(`Username: ${user.username}`);
+    doc.text(`Email: ${user.email}`);
+    doc.text(`Bio: ${user.bio || "N/A"}`);
+
+    // Finalize PDF
+    doc.end();
   } catch (error) {
-    console.error("Download resume error:", error);
-    return res.status(500).json({
-      message: "Error generating resume",
+    console.error("Error generating profile PDF:", error);
+    res.status(500).json({
+      message: "Error generating profile PDF",
       error: error.message,
     });
   }

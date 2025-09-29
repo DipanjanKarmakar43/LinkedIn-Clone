@@ -2,6 +2,14 @@ import Profile from "../models/profile.model.js";
 import Post from "../models/posts.model.js";
 import User from "../models/user.model.js";
 import Comment from "../models/comments.model.js";
+import cloudinary from "cloudinary";
+
+// ---------------- Cloudinary Config ----------------
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const activeCheck = async (req, res) => {
   return res.status(200).json({ message: "Server is active" });
@@ -13,20 +21,25 @@ export const createPost = async (req, res) => {
     const user = await User.findOne({ token });
     if (!user) return res.status(401).json({ message: "Unauthorized" });
 
+    const mediaUrl = req.file?.path || ""; // Cloudinary URL
+    const mediaPublicId = req.file?.filename || ""; // Cloudinary public_id
+    const fileType = req.file?.mimetype || "";
+
     const post = new Post({
       userId: user._id,
       body,
-      media: req.file ? req.file.filename : "",
-      fileType: req.file ? req.file.mimetype : "",
+      media: mediaUrl,
+      mediaPublicId,
+      fileType,
     });
 
     await post.save();
 
-    // 👇 Populate post and emit event for real-time update
     const populatedPost = await Post.findById(post._id).populate(
       "userId",
       "name username email profilePicture"
     );
+
     req.io.emit("new_post", populatedPost);
 
     return res.status(201).json({
@@ -35,10 +48,7 @@ export const createPost = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating post:", error);
-    return res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -76,6 +86,18 @@ export const deletePost = async (req, res) => {
     if (post.userId.toString() !== user._id.toString()) {
       return res.status(403).json({ message: "Forbidden" });
     }
+
+    // 👇 If Cloudinary media exists, delete it
+    if (post.mediaPublicId) {
+      try {
+        await cloudinary.v2.uploader.destroy(post.mediaPublicId, {
+          resource_type: "auto",
+        });
+      } catch (err) {
+        console.error("Error deleting Cloudinary file:", err);
+      }
+    }
+
     await Post.deleteOne({ _id: postId });
 
     // 👇 Emit event for real-time deletion
@@ -201,7 +223,6 @@ export const delete_comment_of_user = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
     await Comment.deleteOne({ _id: commentId });
-    // Note: Also delete all replies in a real app
 
     // 👇 Emit event for real-time comment deletion
     req.io.emit("comment_deleted", { commentId, postId: comment.postId });

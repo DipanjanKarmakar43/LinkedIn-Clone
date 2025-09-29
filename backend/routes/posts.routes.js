@@ -1,7 +1,5 @@
 import { Router } from "express";
 import multer from "multer";
-import crypto from "crypto";
-import fs from "fs";
 import {
   activeCheck,
   createPost,
@@ -16,31 +14,56 @@ import {
   toggleLike,
   getUserPosts,
 } from "../controllers/posts.controller.js";
+import cloudinary from "cloudinary";
 
-const router = Router();
-
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueName =
-      crypto.randomBytes(8).toString("hex") + "-" + file.originalname;
-    cb(null, uniqueName);
-  },
+// ---------------- Cloudinary Config ----------------
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// ---------------- Multer Setup ----------------
+// Instead of saving locally, store in memory buffer
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// ---------------- Router ----------------
+const router = Router();
+
 router.route("/").get(activeCheck);
-router.route("/post").post(upload.single("media"), createPost);
+
+// 👇 Upload middleware + Cloudinary
+router.route("/post").post(upload.single("media"), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Convert buffer to base64 Data URI for Cloudinary
+    const fileBase64 = req.file.buffer.toString("base64");
+    const fileURI = `data:${req.file.mimetype};base64,${fileBase64}`;
+
+    // Upload to Cloudinary
+    const result = await cloudinary.v2.uploader.upload(fileURI, {
+      folder: "linkedin-clone", // 👈 customize folder name
+      resource_type: "auto", // auto-detect image/video
+    });
+
+    // Attach Cloudinary URL to req.body before calling controller
+    req.body.mediaUrl = result.secure_url;
+    req.body.mediaPublicId = result.public_id;
+
+    // Now call your controller
+    return createPost(req, res, next);
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    return res.status(500).json({ error: "Failed to upload to Cloudinary" });
+  }
+});
+
 router.route("/posts").get(getAllPosts);
-router.route("/posts/delete/:postId").delete(deletePost); 
+router.route("/posts/delete/:postId").delete(deletePost);
 router.route("/toggle_like").patch(toggleLike);
 router.route("/create_comment").post(create_comment);
 router.route("/get_comments").get(get_comments_by_post);
