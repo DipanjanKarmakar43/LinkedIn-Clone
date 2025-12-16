@@ -4,9 +4,14 @@ import Profile from "../models/profile.model.js";
 import Connection from "../models/connections.model.js";
 import Post from "../models/posts.model.js";
 import crypto from "crypto";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 import PDFDocument from "pdfkit";
 import fs from "fs";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  extractPublicId,
+} from "../utils/cloudinary.js";
 
 const convertUserDataToPDF = async (userData) => {
   try {
@@ -261,14 +266,31 @@ export const uploadProfilePicture = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.profilePicture = req.file.filename;
+    // Delete old profile picture from Cloudinary if exists
+    if (user.profilePicture && user.profilePicture !== "default.jpg") {
+      const publicId = extractPublicId(user.profilePicture);
+      if (publicId) {
+        await deleteFromCloudinary(publicId, "image");
+      }
+    }
+
+    // Upload new profile picture to Cloudinary
+    const folder = `linkedin-clone/profiles/${user._id}`;
+    const uploadResult = await uploadToCloudinary(
+      req.file.buffer,
+      folder,
+      "image"
+    );
+
+    user.profilePicture = uploadResult.secure_url;
     await user.save();
 
     return res.json({
       message: "Profile picture uploaded successfully",
-      profilePicture: req.file.filename,
+      profilePicture: uploadResult.secure_url,
     });
   } catch (error) {
+    console.error("Upload profile picture error:", error);
     return res.status(500).json({
       message: "Error uploading profile picture",
       error: error.message,

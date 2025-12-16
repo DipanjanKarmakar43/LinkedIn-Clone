@@ -1,7 +1,14 @@
+// backend/controllers/posts.controller.js
 import Profile from "../models/profile.model.js";
 import Post from "../models/posts.model.js";
 import User from "../models/user.model.js";
 import Comment from "../models/comments.model.js";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  extractPublicId,
+  getResourceType,
+} from "../utils/cloudinary.js";
 
 export const activeCheck = async (req, res) => {
   return res.status(200).json({ message: "Server is active" });
@@ -13,16 +20,34 @@ export const createPost = async (req, res) => {
     const user = await User.findOne({ token });
     if (!user) return res.status(401).json({ message: "Unauthorized" });
 
+    let mediaUrl = "";
+    let fileType = "";
+
+    // Upload to Cloudinary if file exists
+    if (req.file) {
+      const resourceType = getResourceType(req.file.mimetype);
+      const folder = `linkedin-clone/posts/${user._id}`;
+
+      const uploadResult = await uploadToCloudinary(
+        req.file.buffer,
+        folder,
+        resourceType
+      );
+
+      mediaUrl = uploadResult.secure_url;
+      fileType = req.file.mimetype;
+    }
+
     const post = new Post({
       userId: user._id,
       body,
-      media: req.file ? req.file.filename : "",
-      fileType: req.file ? req.file.mimetype : "",
+      media: mediaUrl,
+      fileType: fileType,
     });
 
     await post.save();
 
-    // 👇 Populate post and emit event for real-time update
+    // Populate post and emit event for real-time update
     const populatedPost = await Post.findById(post._id).populate(
       "userId",
       "name username email profilePicture"
@@ -76,9 +101,19 @@ export const deletePost = async (req, res) => {
     if (post.userId.toString() !== user._id.toString()) {
       return res.status(403).json({ message: "Forbidden" });
     }
+
+    // Delete media from Cloudinary if exists
+    if (post.media) {
+      const publicId = extractPublicId(post.media);
+      if (publicId) {
+        const resourceType = getResourceType(post.fileType);
+        await deleteFromCloudinary(publicId, resourceType);
+      }
+    }
+
     await Post.deleteOne({ _id: postId });
 
-    // 👇 Emit event for real-time deletion
+    // Emit event for real-time deletion
     req.io.emit("post_deleted", postId);
 
     return res.status(200).json({ message: "Post deleted successfully" });
@@ -110,7 +145,7 @@ export const toggleLike = async (req, res) => {
     }
     const updatedPost = await post.save();
 
-    // 👇 Populate and emit event for real-time like update
+    // Populate and emit event for real-time like update
     const populatedPost = await Post.findById(updatedPost._id).populate(
       "userId",
       "name username email profilePicture"
@@ -172,7 +207,7 @@ export const create_comment = async (req, res) => {
       "name username profilePicture"
     );
 
-    // 👇 Emit event for real-time new comment
+    // Emit event for real-time new comment
     req.io.emit("new_comment", populatedComment);
 
     return res.status(201).json({
@@ -201,9 +236,8 @@ export const delete_comment_of_user = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
     await Comment.deleteOne({ _id: commentId });
-    // Note: Also delete all replies in a real app
 
-    // 👇 Emit event for real-time comment deletion
+    // Emit event for real-time comment deletion
     req.io.emit("comment_deleted", { commentId, postId: comment.postId });
 
     return res.status(200).json({ message: "Comment deleted successfully" });
@@ -233,7 +267,7 @@ export const edit_comment = async (req, res) => {
 
     await comment.populate("userId", "name profilePicture");
 
-    // 👇 Emit event for real-time comment update
+    // Emit event for real-time comment update
     req.io.emit("comment_updated", comment);
 
     return res.status(200).json({
@@ -269,7 +303,7 @@ export const reply_to_comment = async (req, res) => {
 
     await reply.populate("userId", "name profilePicture");
 
-    // 👇 Emit event for real-time new reply
+    // Emit event for real-time new reply
     req.io.emit("new_reply", reply);
 
     return res.status(201).json({

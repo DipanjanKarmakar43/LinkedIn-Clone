@@ -1,7 +1,6 @@
+// backend/routes/posts.routes.js
 import { Router } from "express";
 import multer from "multer";
-import crypto from "crypto";
-import fs from "fs";
 import {
   activeCheck,
   createPost,
@@ -19,23 +18,28 @@ import {
 
 const router = Router();
 
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+// Use memory storage for Cloudinary uploads
+const storage = multer.memoryStorage();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
-  filename: (req, file, cb) => {
-    const uniqueName =
-      crypto.randomBytes(8).toString("hex") + "-" + file.originalname;
-    cb(null, uniqueName);
-  },
+  fileFilter: (req, file, cb) => {
+    // Accept images, videos, and documents
+    if (
+      file.mimetype.startsWith('image/') ||
+      file.mimetype.startsWith('video/') ||
+      file.mimetype === 'application/pdf' ||
+      file.mimetype.includes('document')
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images, videos, and documents are allowed.'));
+    }
+  }
 });
-
-const upload = multer({ storage });
 
 router.route("/").get(activeCheck);
 router.route("/post").post(upload.single("media"), createPost);

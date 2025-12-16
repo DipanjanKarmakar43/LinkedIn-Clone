@@ -1,7 +1,6 @@
+// backend/routes/user.routes.js
 import { Router } from "express";
 import multer from "multer";
-import fs from "fs";
-import crypto from "crypto";
 import {
   login,
   register,
@@ -22,21 +21,23 @@ import {
 
 const router = Router();
 
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+// Use memory storage for Cloudinary uploads
+const storage = multer.memoryStorage();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const uniqueName =
-      crypto.randomBytes(8).toString("hex") + "-" + file.originalname;
-    cb(null, uniqueName);
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit for profile pictures
   },
+  fileFilter: (req, file, cb) => {
+    // Accept only images for profile pictures
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images are allowed for profile pictures.'));
+    }
+  }
 });
-
-const upload = multer({ storage });
 
 router.post(
   "/update_profile_picture",
