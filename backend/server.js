@@ -15,12 +15,28 @@ const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "PATCH"] },
 });
 
+// Updated CORS configuration to allow both localhost and production
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://linkedin-ebmh.onrender.com'
+];
+
 app.use(
   cors({
-    origin: "https://linkedin-ebmh.onrender.com",
-    credentials: true, // if using cookies/auth
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
   })
 );
+
 app.use(express.json());
 
 app.use((req, res, next) => {

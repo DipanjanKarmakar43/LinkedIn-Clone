@@ -12,7 +12,7 @@ import {
   getAcceptedConnections,
   acceptConnectionRequest,
   updateProfilePicture,
-  getSentRequests, // Make sure this is imported
+  getSentRequests,
 } from "@/config/redux/action/authAction";
 
 const initialState = {
@@ -26,7 +26,7 @@ const initialState = {
   profileFetched: false,
   connections: [],
   connectionRequests: [],
-  sentRequests: [], // 👈 THIS LINE WAS MISSING
+  sentRequests: [],
   all_users: [],
   all_profiles_fetched: false,
 };
@@ -65,7 +65,10 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload.message || "Invalid credentials";
+        state.message =
+          action.payload?.message ||
+          action.error?.message ||
+          "Invalid credentials";
       })
       // Register
       .addCase(registerUser.pending, (state) => {
@@ -79,7 +82,10 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload.message || "Registration failed";
+        state.message =
+          action.payload?.message ||
+          action.error?.message ||
+          "Registration failed";
       })
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {
@@ -100,7 +106,10 @@ const authSlice = createSlice({
       .addCase(getAboutUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload.message || "Failed to fetch profile";
+        state.message =
+          action.payload?.message ||
+          action.error?.message ||
+          "Failed to fetch profile";
       })
       // Get All Users
       .addCase(getAllUsers.fulfilled, (state, action) => {
@@ -132,7 +141,10 @@ const authSlice = createSlice({
       .addCase(updateUserProfileData.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload.message || "Failed to update profile.";
+        state.message =
+          action.payload?.message ||
+          action.error?.message ||
+          "Failed to update profile.";
       })
       // Connections
       .addCase(sendConnectionRequest.fulfilled, (state, action) => {
@@ -142,7 +154,10 @@ const authSlice = createSlice({
       })
       .addCase(sendConnectionRequest.rejected, (state, action) => {
         state.isError = true;
-        state.message = action.payload.message;
+        state.message =
+          action.payload?.message ||
+          action.error?.message ||
+          "Failed to send request";
       })
       .addCase(getPendingRequests.fulfilled, (state, action) => {
         state.connectionRequests = action.payload.requests;
@@ -164,7 +179,10 @@ const authSlice = createSlice({
       .addCase(acceptConnectionRequest.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload.message;
+        state.message =
+          action.payload?.message ||
+          action.error?.message ||
+          "Failed to accept request";
       })
       // Profile Picture
       .addCase(updateProfilePicture.pending, (state) => {
@@ -178,7 +196,10 @@ const authSlice = createSlice({
       .addCase(updateProfilePicture.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload.message || "Failed to upload picture.";
+        state.message =
+          action.payload?.message ||
+          action.error?.message ||
+          "Failed to upload picture.";
       });
   },
 });
