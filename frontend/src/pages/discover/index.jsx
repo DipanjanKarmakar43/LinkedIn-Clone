@@ -12,7 +12,7 @@ import {
   getSentRequests,
   getPendingRequests,
 } from "@/config/redux/action/authAction";
-import { baseURL } from "@/config";
+import { getImageUrl } from "@/config";
 
 export default function DiscoverPage() {
   const authState = useSelector((state) => state.auth);
@@ -117,11 +117,7 @@ export default function DiscoverPage() {
                         }
                       >
                         <img
-                          src={
-                            profile.userId.profilePicture
-                              ? `${baseURL}/${profile.userId.profilePicture}`
-                              : "/default.jpg"
-                          }
+                          src={getImageUrl(profile.userId.profilePicture)}
                           alt="Profile"
                           className={styles.userProfileImage}
                         />

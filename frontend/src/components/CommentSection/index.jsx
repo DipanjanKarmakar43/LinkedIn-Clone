@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/Dashboard.module.css";
-import { baseURL } from "@/config";
+import { getImageUrl } from "@/config";
 import {
   createComment,
   deleteComment,
@@ -18,8 +18,7 @@ export default function CommentSection({ postId }) {
   const { user } = useSelector((state) => state.auth);
   const { comments, loadingComments } = useSelector((state) => state.posts);
 
-  const profilePic = user?.userId?.profilePicture;
-  const imageSrc = profilePic ? `${baseURL}/${profilePic}` : "/default.jpg";
+  const imageSrc = getImageUrl(user?.userId?.profilePicture);
   const currentUserId = user?.userId?._id;
   const maxDepth = 4;
 
@@ -93,9 +92,7 @@ export default function CommentSection({ postId }) {
                 style={{ marginLeft: `${(comment.depth || 0) * 4}vh` }}
               >
                 <img
-                  src={`${baseURL}/${
-                    comment.userId?.profilePicture || "default.jpg"
-                  }`}
+                  src={getImageUrl(comment.userId?.profilePicture)}
                   alt={comment.userId?.name}
                 />
                 <div className={styles.commentContent}>

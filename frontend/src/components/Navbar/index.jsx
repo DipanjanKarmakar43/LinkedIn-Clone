@@ -4,7 +4,7 @@ import styles from "../../styles/Navbar.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser, searchUsers } from "@/config/redux/action/authAction";
 import { setTokenIsThere } from "@/config/redux/reducer/authReducer";
-import { baseURL } from "@/config";
+import { getImageUrl } from "@/config";
 
 export default function NavbarComponent() {
   const router = useRouter();
@@ -105,7 +105,6 @@ export default function NavbarComponent() {
                 ) : all_users?.length > 0 ? (
                   <>
                     {all_users.slice(0, 6).map((profile) => (
-                      // Use onClick with router.push for smoother navigation
                       <div
                         key={profile.userId._id}
                         className={styles.searchResultItem}
@@ -114,11 +113,7 @@ export default function NavbarComponent() {
                         }
                       >
                         <img
-                          src={
-                            profile?.userId?.profilePicture
-                              ? `${baseURL}/${profile.userId.profilePicture}`
-                              : "/default.jpg"
-                          }
+                          src={getImageUrl(profile?.userId?.profilePicture)}
                           alt="Profile"
                           className={styles.searchResultImage}
                         />
@@ -211,8 +206,7 @@ export default function NavbarComponent() {
                   Sign in
                 </button>
               </>
-            ) : // Check for user AND the nested user.userId to be safe
-            user && user.userId ? (
+            ) : user && user.userId ? (
               <div className={styles.authSection}>
                 <button onClick={handleLogout} className={styles.logoutButton}>
                   Logout
@@ -220,20 +214,12 @@ export default function NavbarComponent() {
 
                 <div className={styles.profileDisplay}>
                   <img
-                    src={(() => {
-                      // CORRECTED: Access properties through user.userId
-                      const path =
-                        user.userId.profilePicture ||
-                        user.userId.avatar ||
-                        user.userId.picture;
-                      return path ? `${baseURL}/${path}` : "/default.jpg";
-                    })()}
+                    src={getImageUrl(user.userId.profilePicture)}
                     alt="Profile"
                     className={styles.profilePic}
                   />
                   <div className={styles.profileDetails}>
                     <span>{`Hello, ${
-                      // CORRECTED: Access properties through user.userId
                       user.userId.name ||
                       user.userId.username ||
                       user.userId.fullName ||

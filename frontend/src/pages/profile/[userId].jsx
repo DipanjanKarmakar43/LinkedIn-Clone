@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
-import { clientServer, baseURL } from "@/config";
+import { clientServer, getImageUrl } from "@/config";
 import UserLayout from "@/layout/UserLayout";
 import DashboardLayout from "@/layout/DashboardLayout";
 import styles from "../../styles/Profile.module.css";
@@ -27,7 +27,7 @@ const Post = ({ post }) => {
         <div className={styles.postMedia}>
           {isImage && (
             <img
-              src={`${baseURL}/${post.media}`}
+              src={getImageUrl(post.media)}
               alt="Post media"
               className={styles.postImage}
             />
@@ -35,13 +35,13 @@ const Post = ({ post }) => {
           {isVideo && (
             <video
               controls
-              src={`${baseURL}/${post.media}`}
+              src={getImageUrl(post.media)}
               className={styles.postVideo}
             />
           )}
           {isArticle && (
             <a
-              href={`${baseURL}/${post.media}`}
+              href={getImageUrl(post.media)}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.articleLink}
@@ -115,9 +115,7 @@ export default function UserProfilePage() {
   }
 
   const { profile, posts } = profileData;
-  const profilePicUrl = profile.userId?.profilePicture
-    ? `${baseURL}/${profile.userId.profilePicture}`
-    : "/default.jpg";
+  const profilePicUrl = getImageUrl(profile.userId?.profilePicture);
 
   let buttonState = "connect";
   if (profile.userId?._id === authState.user?.userId?._id) {

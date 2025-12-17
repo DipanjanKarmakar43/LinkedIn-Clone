@@ -8,15 +8,18 @@ export const clientServer = axios.create({
 });
 
 // Helper function to get image URL
-// Since Cloudinary URLs are already complete, we just return them
+// Cloudinary URLs are complete URLs, so we return them as-is
+// Legacy local images are prefixed with baseURL
 export const getImageUrl = (imagePath) => {
-  if (!imagePath) return "/default.jpg";
-  
-  // If it's already a full URL (Cloudinary), return as-is
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+  if (!imagePath || imagePath === "default.jpg") {
+    return "/default.jpg";
+  }
+
+  // If it's already a full Cloudinary URL, return as-is
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
     return imagePath;
   }
-  
-  // Fallback for local images (backward compatibility)
+
+  // Fallback for legacy local images (backward compatibility)
   return `${baseURL}/${imagePath}`;
 };
