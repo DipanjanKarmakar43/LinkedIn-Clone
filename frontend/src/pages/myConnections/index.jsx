@@ -8,7 +8,7 @@ import {
   getAcceptedConnections,
   acceptConnectionRequest,
 } from "@/config/redux/action/authAction";
-import { baseURL } from "@/config";
+import { getImageUrl } from "@/config";
 import { useRouter } from "next/router";
 
 export default function MyConnectionsPage() {
@@ -46,11 +46,7 @@ export default function MyConnectionsPage() {
                     <div key={req._id} className={styles.connectionCard}>
                       <div className={styles.profileBanner}>
                         <img
-                          src={
-                            req.userId.profilePicture
-                              ? `${baseURL}/${req.userId.profilePicture}`
-                              : "/default.jpg"
-                          }
+                          src={getImageUrl(req.userId.profilePicture)}
                           alt="profile"
                           className={styles.connectionImage}
                           onClick={() =>
@@ -96,11 +92,7 @@ export default function MyConnectionsPage() {
                       <div key={conn._id} className={styles.connectionCard}>
                         <div className={styles.profileBanner}>
                           <img
-                            src={
-                              friend.profilePicture
-                                ? `${baseURL}/${friend.profilePicture}`
-                                : "/default.jpg"
-                            }
+                            src={getImageUrl(friend.profilePicture)}
                             alt="profile"
                             className={styles.connectionImage}
                             onClick={() =>

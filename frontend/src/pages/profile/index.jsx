@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import UserLayout from "@/layout/UserLayout";
 import DashboardLayout from "@/layout/DashboardLayout";
 import styles from "../../styles/Profile.module.css";
-import { baseURL } from "@/config";
+import { getImageUrl } from "@/config";
 
 import EditProfileModal from "@/components/Modal/EditProfileModal";
 import ExperienceModal from "@/components/Modal/ExperienceModal";
@@ -115,7 +115,6 @@ export default function ProfilePage() {
     const file = e.target.files[0];
     if (file) {
       const formData = new FormData();
-      // The key 'profile_picture' must match the backend
       formData.append("profile_picture", file);
       dispatch(updateProfilePicture(formData));
     }
@@ -139,9 +138,11 @@ export default function ProfilePage() {
     );
   }
 
-  const profilePicUrl = user?.userId?.profilePicture
-    ? `${baseURL}/${user.userId.profilePicture}`
-    : "/default.jpg";
+  // Debug: Log the profile picture URL
+  console.log("Profile Picture Path:", user?.userId?.profilePicture);
+  console.log("Generated URL:", getImageUrl(user?.userId?.profilePicture));
+
+  const profilePicUrl = getImageUrl(user?.userId?.profilePicture);
 
   return (
     <UserLayout>
@@ -176,7 +177,14 @@ export default function ProfilePage() {
           <div className={styles.profileCard}>
             <div className={styles.profileCardBanner}>
               <div className={styles.profileCardImage}>
-                <img src={profilePicUrl} alt="Profile" />
+                <img 
+                  src={profilePicUrl} 
+                  alt="Profile"
+                  onError={(e) => {
+                    console.error("Image failed to load:", profilePicUrl);
+                    e.target.src = "/default.jpg";
+                  }}
+                />
               </div>
             </div>
             <div className={styles.profileCardContent}>
@@ -219,22 +227,25 @@ export default function ProfilePage() {
                       ? conn.connectionId
                       : conn.userId;
                   if (!friend) return null;
+                  
+                  const friendImageUrl = getImageUrl(friend.profilePicture);
+                  console.log("Friend Image:", friend.name, friendImageUrl);
+                  
                   return (
                     <div
                       key={friend._id}
                       className={styles.recentConnectionItem}
-                      // onClick={() => router.push(`/profile/${friend._id}`)}
                       title={friend.name}
                     >
                       <div className={styles.profileBanner}>
                         <img
-                          src={
-                            friend.profilePicture
-                              ? `${baseURL}/${friend.profilePicture}`
-                              : "/default.jpg"
-                          }
+                          src={friendImageUrl}
                           alt={friend.name}
                           className={styles.recentConnectionImage}
+                          onError={(e) => {
+                            console.error("Friend image failed:", friendImageUrl);
+                            e.target.src = "/default.jpg";
+                          }}
                         />
                       </div>
                       <div className={styles.recentConnectionInfo}>
@@ -266,6 +277,9 @@ export default function ProfilePage() {
                   const isVideo = post.fileType?.startsWith("video/");
                   const isArticle = post.media && !isImage && !isVideo;
 
+                  const mediaUrl = getImageUrl(post.media);
+                  console.log("Post Media:", post._id, mediaUrl);
+
                   return (
                     <div key={post._id} className={styles.postItem}>
                       <p>{post.body}</p>
@@ -273,26 +287,33 @@ export default function ProfilePage() {
                         <div className={styles.postMedia}>
                           {isImage && (
                             <img
-                              src={`${baseURL}/${post.media}`}
+                              src={mediaUrl}
                               alt="Post media"
                               className={styles.postImage}
+                              onError={(e) => {
+                                console.error("Post image failed:", mediaUrl);
+                                e.target.style.display = "none";
+                              }}
                             />
                           )}
                           {isVideo && (
                             <video
                               controls
-                              src={`${baseURL}/${post.media}`}
+                              src={mediaUrl}
                               className={styles.postVideo}
+                              onError={(e) => {
+                                console.error("Post video failed:", mediaUrl);
+                              }}
                             />
                           )}
                           {isArticle && (
                             <a
-                              href={`${baseURL}/${post.media}`}
+                              href={mediaUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={styles.articleLink}
                             >
-                              View Document ({post.media})
+                              View Document
                             </a>
                           )}
                         </div>
@@ -358,7 +379,6 @@ export default function ProfilePage() {
                       {edu.degree} in {edu.fieldOfStudy}
                     </h4>
                     <p>{edu.school}</p>
-                    {/* <p>Years: {edu.years}</p> */}
                   </div>
                   <div className={styles.itemActions}>
                     <button onClick={() => openModal("editEducation", edu)}>

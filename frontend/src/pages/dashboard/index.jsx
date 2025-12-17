@@ -8,14 +8,13 @@ import {
   getAllComments,
 } from "@/config/redux/action/postAction";
 import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
-import { baseURL } from "@/config";
+import { getImageUrl } from "@/config";
 import styles from "../../styles/Dashboard.module.css";
 import UserLayout from "@/layout/UserLayout";
 import DashboardLayout from "@/layout/DashboardLayout";
 import PostModal from "@/components/PostModal";
 import CommentSection from "@/components/CommentSection";
 
-// 👇 Import socket and real-time actions
 import socket from "@/config/socket";
 import {
   addPostRealTime,
@@ -48,7 +47,6 @@ export default function Dashboard() {
       }
     }
 
-    // 👇 Set up socket listeners
     socket.on("new_post", (post) => dispatch(addPostRealTime(post)));
     socket.on("post_deleted", (postId) => dispatch(removePostRealTime(postId)));
     socket.on("post_updated", (post) => dispatch(updatePostRealTime(post)));
@@ -65,7 +63,6 @@ export default function Dashboard() {
       dispatch(updateCommentRealTime(comment))
     );
 
-    // 👇 Clean up listeners on component unmount
     return () => {
       socket.off("new_post");
       socket.off("post_deleted");
@@ -77,8 +74,7 @@ export default function Dashboard() {
     };
   }, [dispatch, authState.isTokenThere, authState.all_profiles_fetched]);
 
-  const profilePic = authState.user?.userId?.profilePicture;
-  const imageSrc = profilePic ? `${baseURL}/${profilePic}` : "/default.jpg";
+  const imageSrc = getImageUrl(authState.user?.userId?.profilePicture);
 
   const handleFileSelect = (event, type) => {
     const selectedFile = event.target.files[0];
@@ -92,7 +88,6 @@ export default function Dashboard() {
   const handleDeletePost = (postId) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       const token = localStorage.getItem("token");
-      // Dispatching the original action which will also trigger the socket emit
       dispatch(deletePost({ postId, token }));
     }
   };
@@ -167,7 +162,6 @@ export default function Dashboard() {
             {postState?.posts?.length > 0 ? (
               postState.posts.map((post) => {
                 const currentUserId = authState.user?.userId?._id;
-                // Likes is a Map on the backend, but becomes an object when JSON serialized
                 const isLikedByCurrentUser =
                   post.likes && post.likes[currentUserId];
                 const likeCount = post.likes
@@ -180,14 +174,28 @@ export default function Dashboard() {
                 const isArticle =
                   fileType.includes("pdf") || fileType.includes("document");
 
+                // Debug logging
+                console.log("Post ID:", post._id);
+                console.log("Post Media:", post.media);
+                console.log("File Type:", post.fileType);
+                console.log("Is Image:", isImage);
+                
+                const postMediaUrl = getImageUrl(post.media);
+                console.log("Generated Media URL:", postMediaUrl);
+                
+                const userProfileUrl = getImageUrl(post.userId?.profilePicture);
+                console.log("User Profile URL:", userProfileUrl);
+
                 return (
                   <div key={post._id} className={styles.post}>
                     <div className={styles.postHeader}>
                       <img
-                        src={`${baseURL}/${
-                          post.userId?.profilePicture || "default.jpg"
-                        }`}
+                        src={userProfileUrl}
                         alt="Profile"
+                        onError={(e) => {
+                          console.error("Profile image failed:", userProfileUrl);
+                          e.target.src = "/default.jpg";
+                        }}
                       />
                       <div className={styles.postUserInfo}>
                         <h3>{post.userId?.name || "Unknown User"}</h3>
@@ -212,21 +220,31 @@ export default function Dashboard() {
                         <div className={styles.postMedia}>
                           {isImage && (
                             <img
-                              src={`${baseURL}/${post.media}`}
+                              src={postMediaUrl}
                               alt="Post media"
+                              onError={(e) => {
+                                console.error("Post media image failed:", postMediaUrl);
+                                e.target.style.display = "none";
+                              }}
                             />
                           )}
                           {isVideo && (
-                            <video controls src={`${baseURL}/${post.media}`} />
+                            <video 
+                              controls 
+                              src={postMediaUrl}
+                              onError={(e) => {
+                                console.error("Post media video failed:", postMediaUrl);
+                              }}
+                            />
                           )}
                           {isArticle && (
                             <a
-                              href={`${baseURL}/${post.media}`}
+                              href={postMediaUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={styles.articleLink}
                             >
-                              View Article ({post.media})
+                              View Article
                             </a>
                           )}
                         </div>

@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { setTokenIsThere } from "@/config/redux/reducer/authReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUsers } from "@/config/redux/action/authAction";
-import { baseURL } from "@/config";
+import { getImageUrl } from "@/config";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -40,13 +40,10 @@ export default function DashboardLayout({ children }) {
                   onClick={() => router.push("/profile")}
                   className={styles.profileCardImage}
                 >
-                  {(() => {
-                    const profilePic = authState?.user?.userId?.profilePicture;
-                    const imageSrc = profilePic
-                      ? `${baseURL}/${profilePic}`
-                      : "/default.jpg";
-                    return <img src={imageSrc} alt="Profile" />;
-                  })()}
+                  <img 
+                    src={getImageUrl(authState?.user?.userId?.profilePicture)} 
+                    alt="Profile" 
+                  />
                 </div>
               </div>
               <div className={styles.profileCardContent}>
@@ -87,13 +84,10 @@ export default function DashboardLayout({ children }) {
                   onClick={() => router.push(`/profile/${profile.userId._id}`)}
                 >
                   <div className={styles.topProfileImage}>
-                    {(() => {
-                      const profilePic = profile?.userId?.profilePicture;
-                      const imageSrc = profilePic
-                        ? `${baseURL}/${profilePic}`
-                        : "/default.jpg";
-                      return <img src={imageSrc} alt="Profile" />;
-                    })()}
+                    <img 
+                      src={getImageUrl(profile?.userId?.profilePicture)} 
+                      alt="Profile" 
+                    />
                   </div>
                   <div className={styles.topProfileContent}>
                     <h3>{profile?.userId?.name}</h3>
